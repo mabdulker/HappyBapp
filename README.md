@@ -1,4 +1,4 @@
-# test_flutter
+# Birthday Collector App
 
 A new Flutter project.
 
