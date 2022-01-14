@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+//import 'package:firebase_database/firebase_database.dart';
+import 'package:test_flutter/views/contacts.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,8 +12,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: RandomWords(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "FlutterDatabase",
+      theme: ThemeData(
+        primaryColor: Colors.amber,
+        colorScheme: ColorScheme.fromSwatch()
+            .copyWith(secondary: Colors.deepPurpleAccent),
+      ),
+      themeMode: ThemeMode.dark,
+      home: const Contacts(),
     );
   }
 }
