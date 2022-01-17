@@ -9,6 +9,14 @@ class Contacts extends StatefulWidget {
 }
 
 class _ContactsState extends State<Contacts> {
+  String text = "Hohhohohoho";
+
+  void changeText(String text) {
+    setState(() {
+      this.text = text;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,13 +27,18 @@ class _ContactsState extends State<Contacts> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return const AddContacts();
+            return AddContacts(changeText);
           }));
         },
         child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
+      ),
+      body: Column(
+        children: <Widget>[
+          Text(this.text),
+        ],
       ),
     );
   }
