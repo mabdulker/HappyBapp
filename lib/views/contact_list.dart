@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_flutter/model/contact.dart';
 import 'package:test_flutter/views/add_contact.dart';
 
 class Contacts extends StatefulWidget {
@@ -9,11 +10,12 @@ class Contacts extends StatefulWidget {
 }
 
 class _ContactsState extends State<Contacts> {
-  String text = "Hohhohohoho";
+  List<Contact> contacts = [];
 
-  void changeText(String text) {
+  void newContact(String text) {
+    print(text);
     setState(() {
-      this.text = text;
+      contacts.add(Contact(text));
     });
   }
 
@@ -27,7 +29,7 @@ class _ContactsState extends State<Contacts> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return AddContacts(changeText);
+            return AddContacts(newContact);
           }));
         },
         child: const Icon(
@@ -35,11 +37,44 @@ class _ContactsState extends State<Contacts> {
           color: Colors.white,
         ),
       ),
-      body: Column(
+      body: Stack(
         children: <Widget>[
-          Text(this.text),
+          Expanded(child: ContactList(contacts)),
         ],
       ),
+    );
+  }
+}
+
+class ContactList extends StatefulWidget {
+  final List<Contact> contacts;
+
+  ContactList(this.contacts);
+
+  @override
+  _ContactListState createState() => _ContactListState();
+}
+
+class _ContactListState extends State<ContactList> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget.contacts.length,
+      itemBuilder: (context, index) {
+        var contact = widget.contacts[index];
+        return Card(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: ListTile(
+                  title: Text(contact.name),
+                  textColor: Colors.black,
+                ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -1,10 +1,10 @@
 import 'dart:core';
 
 class Contact {
-  String name = "";
+  String name = "Cook";
   List<Event> events = [];
 
-  Contact(String name);
+  Contact(this.name);
 
   void addEvent(Event event) {
     // ignore: unnecessary_this
