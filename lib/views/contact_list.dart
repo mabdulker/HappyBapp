@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:test_flutter/model/contact.dart';
 import 'package:test_flutter/views/add_contact.dart';
+import 'package:test_flutter/views/edit_contact.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -100,6 +101,13 @@ class _ContactListState extends State<ContactList> {
               child: ListTile(
                 title: Text('My name is ${data.docs[index]['username']}'),
                 textColor: Colors.black,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) {
+                    return EditContact(
+                      docId: 'J2VGjXCxw2fruhXluRec',
+                    );
+                  }));
+                },
               ),
             )
           ],
