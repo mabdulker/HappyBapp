@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -27,41 +28,21 @@ class _EditContactState extends State<EditContact> {
     getUser().then((value) {
       print('Async done');
       print(_name);
-      print(_selectedDateTime);
+      print(date);
     });
   }
 
   final double pHeight = 120;
   Map<String, DateTime> event = Map();
-  DateTime _selectedDateTime = DateTime.utc(2002);
+  DateTime date = DateTime(2016, 10, 26);
   String _name = '';
+  bool editMode = false;
+  var users = FirebaseFirestore.instance.collection('user');
 
   @override
   Widget build(BuildContext context) {
-    final String formattedDate = DateFormat.yMd().format(_selectedDateTime);
-    var users = FirebaseFirestore.instance.collection('user').doc(widget.docId);
-
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Edit Contact'),
-          backgroundColor: Colors.deepPurple,
-          actions: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(right: 10.0),
-              child: IconButton(
-                onPressed: () {
-                  users
-                      .update(
-                          {'username': _name, 'birthday': _selectedDateTime})
-                      .then((value) => print('user updated'))
-                      .catchError((error) => print('error'));
-                },
-                icon: Icon(Icons.edit),
-                tooltip: 'Save Changes',
-              ),
-            ),
-          ],
-        ),
+        appBar: buildAppBar(),
         body: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
@@ -104,26 +85,127 @@ class _EditContactState extends State<EditContact> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Text('Birthday',
-                style: TextStyle(
-                  color: CupertinoColors.systemBlue,
-                  fontSize: 15.0,
-                )),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 5.0),
+            _DatePickerItem(
+              children: <Widget>[
+                const Text('Birthday'),
+                CupertinoButton(
+                  // Display a CupertinoDatePicker in date picker mode.
+                  onPressed: () => _showDialog(
+                    CupertinoDatePicker(
+                      initialDateTime: date,
+                      mode: CupertinoDatePickerMode.date,
+                      use24hFormat: true,
+                      // This is called when the user changes the date.
+                      onDateTimeChanged: (DateTime newDate) {
+                        setState(() => date = newDate);
+                      },
+                    ),
+                  ),
+                  // In this example, the date value is formatted manually. You can use intl package
+                  // to format the value based on user's locale settings.
+                  child: Text(
+                    '${date.day}-${date.month}-${date.year}',
+                    style: const TextStyle(
+                      fontSize: 22.0,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            CupertinoDateTextBox(
-                initialValue: _selectedDateTime,
-                onDateChange: onBirthdayChange,
-                hintText: DateFormat.yMd().format(DateTime.now())),
           ],
         ),
       );
   void onBirthdayChange(DateTime birthday) {
     setState(() {
-      _selectedDateTime = birthday;
+      date = birthday;
     });
   }
+
+  PreferredSizeWidget buildAppBar() => AppBar(
+        title: Text('${editMode ? 'Edit' : 'View'} Contact'),
+        backgroundColor: Colors.deepPurple,
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Container(
+              child: test(),
+            ),
+          ),
+        ],
+      );
+
+  Widget editButton() => ElevatedButton.icon(
+        onPressed: () {
+          setState(() {
+            editMode = !editMode;
+          });
+        },
+        icon: Icon(Icons.edit),
+        label: Text('Edit'),
+      );
+
+  Widget saveButton() => ElevatedButton.icon(
+        onPressed: () {
+          setState(() {
+            editMode = !editMode;
+          });
+          users
+              .doc(widget.docId)
+              .update({'username': _name, 'birthday': date})
+              .then((value) => print('user updated'))
+              .catchError((error) => print('error'));
+        },
+        icon: const Icon(Icons.save),
+        label: const Text('Save'),
+      );
+
+  Widget test() => GestureDetector(
+        onTap: () {
+          if (editMode) {
+            users
+                .doc(widget.docId)
+                .update({'username': _name, 'birthday': date})
+                .then((value) => print('user updated'))
+                .catchError((error) => print('error'));
+          }
+          setState(() {
+            editMode = !editMode;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 10,
+          width: 80,
+          child: Center(
+            child: Text(
+              editMode ? 'Save' : 'Edit',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Colors.deepPurple[500],
+            borderRadius: BorderRadius.circular(50),
+            boxShadow: editMode
+                ? [
+                    BoxShadow(
+                      color: Colors.deepPurple[600]!,
+                      offset: const Offset(4, 4),
+                      blurRadius: 15,
+                      spreadRadius: 1,
+                    ),
+                    BoxShadow(
+                      color: Colors.deepPurple[400]!,
+                      offset: Offset(-4, -4),
+                      blurRadius: 15,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
+          ),
+        ),
+      );
 
   Future<void> getUser() async {
     var collection = FirebaseFirestore.instance.collection('user');
@@ -133,10 +215,62 @@ class _EditContactState extends State<EditContact> {
       // You can then retrieve the value from the Map like this:
       setState(() {
         _name = data['username'];
-        _selectedDateTime =
-            DateTime.parse(data['birthday'].toDate().toString());
+        date = DateTime.parse(data['birthday'].toDate().toString());
       });
     }
+  }
+
+  // This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoDatePicker.
+  void _showDialog(Widget child) {
+    showCupertinoModalPopup<void>(
+        context: context,
+        builder: (BuildContext context) => Container(
+              height: 216,
+              padding: const EdgeInsets.only(top: 6.0),
+              // The Bottom margin is provided to align the popup above the system navigation bar.
+              margin: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              // Provide a background color for the popup.
+              color: CupertinoColors.systemBackground.resolveFrom(context),
+              // Use a SafeArea widget to avoid system overlaps.
+              child: SafeArea(
+                top: false,
+                child: child,
+              ),
+            ));
+  }
+}
+
+// This class simply decorates a row of widgets.
+class _DatePickerItem extends StatelessWidget {
+  const _DatePickerItem({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            color: CupertinoColors.inactiveGray,
+            width: 0.0,
+          ),
+          bottom: BorderSide(
+            color: CupertinoColors.inactiveGray,
+            width: 0.0,
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: children,
+        ),
+      ),
+    );
   }
 }
 
