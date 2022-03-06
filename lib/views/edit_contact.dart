@@ -21,11 +21,6 @@ class EditContact extends StatefulWidget {
 }
 
 class _EditContactState extends State<EditContact> {
-  final double pHeight = 120;
-  Map<String, DateTime> event = Map();
-  DateTime _selectedDateTime = DateTime.utc(2002);
-  String _name = '';
-
   @override
   void initState() {
     super.initState();
@@ -36,10 +31,15 @@ class _EditContactState extends State<EditContact> {
     });
   }
 
+  final double pHeight = 120;
+  Map<String, DateTime> event = Map();
+  DateTime _selectedDateTime = DateTime.utc(2002);
+  String _name = '';
+
   @override
   Widget build(BuildContext context) {
     final String formattedDate = DateFormat.yMd().format(_selectedDateTime);
-    CollectionReference users = FirebaseFirestore.instance.collection('user');
+    var users = FirebaseFirestore.instance.collection('user').doc(widget.docId);
 
     return Scaffold(
         appBar: AppBar(
@@ -51,8 +51,9 @@ class _EditContactState extends State<EditContact> {
               child: IconButton(
                 onPressed: () {
                   users
-                      .add({'username': _name, 'birthday': _selectedDateTime})
-                      .then((value) => print('user added'))
+                      .update(
+                          {'username': _name, 'birthday': _selectedDateTime})
+                      .then((value) => print('user updated'))
                       .catchError((error) => print('error'));
                 },
                 icon: Icon(Icons.edit),
