@@ -104,7 +104,7 @@ class _ContactListState extends State<ContactList> {
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
                     return EditContact(
-                      docId: 'J2VGjXCxw2fruhXluRec',
+                      docId: data.docs[index].id,
                     );
                   }));
                 },
