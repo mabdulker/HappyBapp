@@ -1,11 +1,6 @@
-import 'dart:ffi';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cupertino_date_textbox/cupertino_date_textbox.dart';
-import 'package:intl/intl.dart';
 
 class EditContact extends StatefulWidget {
   final String docId;
@@ -30,8 +25,6 @@ class _EditContactState extends State<EditContact> {
     });
   }
 
-  final double pHeight = 120;
-  Map<String, DateTime> event = Map();
   DateTime date = DateTime.now();
   String _name = '';
   bool editMode = false;
@@ -45,7 +38,7 @@ class _EditContactState extends State<EditContact> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.only(top: 50, left: 12, right: 12),
+              padding: const EdgeInsets.only(top: 50),
               child: buildBottom(),
             ),
           ],
@@ -129,15 +122,11 @@ class _EditContactState extends State<EditContact> {
           ],
         ),
       );
-  void onBirthdayChange(DateTime birthday) {
-    setState(() {
-      date = birthday;
-    });
-  }
 
   PreferredSizeWidget buildAppBar() => AppBar(
-        title: Text('${editMode ? 'Edit' : 'View'} Contact'),
+        //title: Text('${editMode ? 'Edit' : 'View'} Contact'),
         backgroundColor: Colors.deepPurple,
+        automaticallyImplyLeading: !editMode,
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -260,27 +249,3 @@ class _DatePickerItem extends StatelessWidget {
     );
   }
 }
-
-
-/*
-  // Date Picker
-  Widget eventPicker() => Row(
-        children: [
-          ElevatedButton(
-            child: Text("Select Date"),
-            onPressed: () async {
-              var datePicked = await DatePicker.showSimpleDatePicker(
-                context,
-                initialDate: DateTime(1994),
-                firstDate: DateTime(1960),
-                lastDate: DateTime(2012),
-                dateFormat: "dd-MMMM-yyyy",
-                locale: DateTimePickerLocale.en_us,
-                looping: true,
-              );
-            },
-          ),
-          //DateTimeField
-        ],
-      );
-*/

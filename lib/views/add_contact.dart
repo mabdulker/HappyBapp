@@ -26,7 +26,7 @@ class _AddContactsState extends State<AddContacts> {
 
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Add Contact'),
+          title: const Text('New Contact'),
           backgroundColor: Colors.deepPurple,
           actions: <Widget>[
             Padding(
