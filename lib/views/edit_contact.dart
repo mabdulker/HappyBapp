@@ -7,8 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:cupertino_date_textbox/cupertino_date_textbox.dart';
 import 'package:intl/intl.dart';
 
-//import 'package:cupertino_date_textbox/cupertino_date_textbox';
-
 class EditContact extends StatefulWidget {
   final String docId;
 
@@ -34,7 +32,7 @@ class _EditContactState extends State<EditContact> {
 
   final double pHeight = 120;
   Map<String, DateTime> event = Map();
-  DateTime date = DateTime(2016, 10, 26);
+  DateTime date = DateTime.now();
   String _name = '';
   bool editMode = false;
   var users = FirebaseFirestore.instance.collection('user');
@@ -57,23 +55,36 @@ class _EditContactState extends State<EditContact> {
   // Assemble Bottom page
   Widget buildBottom() => Column(
         children: [
-          TextFormField(
-            key: Key(_name),
-            initialValue: _name,
-            decoration: const InputDecoration(
-              hintText: 'Name',
-              prefixIcon: Icon(Icons.account_circle_outlined, size: 30),
-              fillColor: Colors.white,
-              filled: false,
+          Padding(
+            padding: EdgeInsets.zero,
+            child: TextFormField(
+              // Edit Mode
+              autocorrect: false,
+              readOnly: !editMode,
+              enabled: editMode,
+              // Text Field
+              key: Key(_name),
+              initialValue: _name,
+              decoration: const InputDecoration(
+                //icon: Icon(Icons.account_circle_outlined, size: 30),
+                hintText: 'Name',
+                prefixIcon: Icon(
+                  Icons.account_circle_outlined,
+                  size: 30,
+                  color: Colors.blueGrey,
+                ),
+                fillColor: Colors.white,
+                filled: false,
+              ),
+              onChanged: (value) {
+                _name = value;
+              },
             ),
-            onChanged: (value) {
-              _name = value;
-            },
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 100, 20, 50),
+            padding: const EdgeInsets.fromLTRB(0, 100, 0, 50),
             child: Column(children: <Widget>[
-              const SizedBox(height: 15.0),
+              //const SizedBox(height: 15.0),
               bdatePicker()
             ]),
           ),
@@ -90,23 +101,26 @@ class _EditContactState extends State<EditContact> {
                 const Text('Birthday'),
                 CupertinoButton(
                   // Display a CupertinoDatePicker in date picker mode.
-                  onPressed: () => _showDialog(
-                    CupertinoDatePicker(
-                      initialDateTime: date,
-                      mode: CupertinoDatePickerMode.date,
-                      use24hFormat: true,
-                      // This is called when the user changes the date.
-                      onDateTimeChanged: (DateTime newDate) {
-                        setState(() => date = newDate);
-                      },
-                    ),
-                  ),
+                  onPressed: !editMode
+                      ? null
+                      : () => _showDialog(
+                            CupertinoDatePicker(
+                              initialDateTime: date,
+                              mode: CupertinoDatePickerMode.date,
+                              use24hFormat: true,
+                              // This is called when the user changes the date.
+                              onDateTimeChanged: (DateTime newDate) {
+                                setState(() => date = newDate);
+                              },
+                            ),
+                          ),
                   // In this example, the date value is formatted manually. You can use intl package
                   // to format the value based on user's locale settings.
                   child: Text(
                     '${date.day}-${date.month}-${date.year}',
                     style: const TextStyle(
                       fontSize: 22.0,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -126,40 +140,15 @@ class _EditContactState extends State<EditContact> {
         backgroundColor: Colors.deepPurple,
         actions: <Widget>[
           Padding(
-            padding: EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(10.0),
             child: Container(
-              child: test(),
+              child: editBtn(),
             ),
           ),
         ],
       );
 
-  Widget editButton() => ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            editMode = !editMode;
-          });
-        },
-        icon: Icon(Icons.edit),
-        label: Text('Edit'),
-      );
-
-  Widget saveButton() => ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            editMode = !editMode;
-          });
-          users
-              .doc(widget.docId)
-              .update({'username': _name, 'birthday': date})
-              .then((value) => print('user updated'))
-              .catchError((error) => print('error'));
-        },
-        icon: const Icon(Icons.save),
-        label: const Text('Save'),
-      );
-
-  Widget test() => GestureDetector(
+  Widget editBtn() => GestureDetector(
         onTap: () {
           if (editMode) {
             users
@@ -179,9 +168,7 @@ class _EditContactState extends State<EditContact> {
           child: Center(
             child: Text(
               editMode ? 'Save' : 'Edit',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20),
             ),
           ),
           decoration: BoxDecoration(
