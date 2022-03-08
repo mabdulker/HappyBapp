@@ -1,22 +1,58 @@
-import 'package:flutter/material.dart';
-//import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+late var contacts = FirebaseFirestore.instance.collection('user');
 
 class Contact {
-  String name;
-  Map events = Map<String, DateTime>();
-  // final DocumentReference;
-  // TO ADD: id, url
+  String id;
+  String username;
+  List<dynamic> events;
+  // TO ADD: picture url
 
-  Contact(this.name);
+  Contact(this.id, this.username, this.events);
 
-  void addEvent(String name, DateTime time) {
-    // ignore: unnecessary_this
-    this.events[name] = time;
+  String getUsername() {
+    return username;
+  }
+
+  List<dynamic> getEvents() {
+    return events;
+  }
+
+  String getId() {
+    return id;
+  }
+
+  DocumentReference getRef() {
+    return contacts.doc(id);
   }
 }
 
-class Event {
-  DateTime event = DateTime.utc(0000, 00, 00);
-
-  Event(DateTime event);
+Future<Contact> getContact(id) async {
+  var docSnapshot = await contacts.doc(id).get();
+  late Map<String, dynamic> data;
+  if (docSnapshot.exists) {
+    data = docSnapshot.data()!;
+    if (data['Events'] != null) {
+      return Contact(id, data['username'], data['Events']);
+    } else {
+      return Contact(id, data['username'], []);
+    }
+  } else {
+    throw ('Contact does not exist');
+  }
 }
+
+// Future<void> updateContact(id, username, [events]) async {
+//   var docSnapshot = await contacts.doc(id).get();
+//   late Map<String, dynamic> data;
+//   if (docSnapshot.exists) {
+//     data = docSnapshot.data()!;
+//     if (data['events'] != null) {
+//       return Contact(data['username'], data['events']);
+//     } else {
+//       return Contact(data['username']);
+//     }
+//   } else {
+//     throw ('Contact does not exist');
+//   }
+// }
