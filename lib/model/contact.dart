@@ -14,7 +14,7 @@ class Contact {
     return username;
   }
 
-  List<dynamic> getEvents() {
+  Future<List<dynamic>> getEvents() async {
     return events;
   }
 

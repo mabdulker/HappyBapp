@@ -30,14 +30,17 @@ class _EditContactState extends State<EditContact> {
         _events = value.getEvents();
       });
       print(_name);
-      print(_events);
       print('Done');
     });
   }
 
+  Future<List<dynamic>> waitEvents() async {
+    return await _events;
+  }
+
   late Future<Contact> user;
   String _name = '';
-  late List<dynamic>? _events;
+  late Future<List<dynamic>> _events;
   bool _editMode = false;
   DateTime date = DateTime.now();
 
@@ -154,19 +157,23 @@ class _EditContactState extends State<EditContact> {
         ],
       );
 
-  Widget getEventList() => Container(
-        // TODO: Figure out why there is an erro every time with late initialization
-        child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: _events?.length,
-            itemBuilder: (context, index) {
-              return Column(
-                children: <Widget>[
-                  buildPicker(_events![index].keys.toList()[0].toString(), date)
-                ],
-              );
-            }),
-      );
+  Widget getEventList() => FutureBuilder<List<dynamic>>(
+      future: waitEvents(),
+      builder: (context, ev) {
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: ev.data?.length ?? 0,
+          itemBuilder: (context, index) {
+            return Column(
+              children: <Widget>[
+                buildPicker(
+                    ev.data?[index].keys.toList()[0].toString() ?? 'hello',
+                    date)
+              ],
+            );
+          },
+        );
+      });
 
   //String label = 'dk';
   Widget buildPicker(label, curDate) => _DatePickerItem(
