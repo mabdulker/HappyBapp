@@ -1,9 +1,9 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
+
+// Implement the List View for Events
 
 class EditContact extends StatefulWidget {
   final String docId;
@@ -37,7 +37,7 @@ class _EditContactState extends State<EditContact> {
 
   late Future<Contact> user;
   String _name = '';
-  late List<dynamic> _events;
+  late List<dynamic>? _events;
   bool _editMode = false;
   DateTime date = DateTime.now();
 
@@ -52,6 +52,11 @@ class _EditContactState extends State<EditContact> {
               padding: const EdgeInsets.only(top: 50),
               child: buildBottom(),
             ),
+            // ListView.builder(
+            //     itemCount: user.then((value) => null)),
+            //     itemBuilder: (context, index) {
+            //       return buildPicker('label', date);
+            //     }),
           ],
         ));
   }
@@ -85,9 +90,20 @@ class _EditContactState extends State<EditContact> {
               },
             ),
           ),
+          // ListView(
+          //   shrinkWrap: true,
+          //   physics: const ScrollPhysics(),
+          //   children: [
+          //     for (var event in _events)
+          //     bdatePicker(),
+          //   ],
+          // ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 100, 0, 50),
-            child: Column(children: <Widget>[bdatePicker()]),
+            child: Column(children: <Widget>[
+              getEventList(),
+            ]),
           ),
         ],
       );
@@ -136,6 +152,20 @@ class _EditContactState extends State<EditContact> {
             ),
           ),
         ],
+      );
+
+  Widget getEventList() => Container(
+        // TODO: Figure out why there is an erro every time with late initialization
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _events?.length,
+            itemBuilder: (context, index) {
+              return Column(
+                children: <Widget>[
+                  buildPicker(_events![index].keys.toList()[0].toString(), date)
+                ],
+              );
+            }),
       );
 
   //String label = 'dk';
