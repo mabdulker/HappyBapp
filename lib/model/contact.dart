@@ -15,6 +15,10 @@ class Contact {
   }
 
   Future<List<dynamic>> getEvents() async {
+    print(events[0].values.first);
+    Timestamp x = events[0].values.first;
+    DateTime s = DateTime.fromMillisecondsSinceEpoch(x.seconds * 1000);
+    print(s);
     return events;
   }
 

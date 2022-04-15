@@ -1,9 +1,16 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
+import 'package:flutter/foundation.dart';
 
-// Implement the List View for Events
+// TODO: changes in ListView are transferred to database
+// TODO: list tile has ability to be deleted
+// TODO: ability to add new tiles
+// TODO: Profile picture
+// TODO: Search Implementation
 
 class EditContact extends StatefulWidget {
   final String docId;
@@ -18,6 +25,13 @@ class EditContact extends StatefulWidget {
 }
 
 class _EditContactState extends State<EditContact> {
+  late Future<Contact> user;
+  late Future<List<dynamic>> _events;
+  bool _editMode = false;
+  String _name = '';
+  Map<String, DateTime> dates = new Map<String, DateTime>();
+  //DateTime date = DateTime(22, 12, 2002);
+
   @override
   void initState() {
     super.initState();
@@ -38,12 +52,6 @@ class _EditContactState extends State<EditContact> {
     return await _events;
   }
 
-  late Future<Contact> user;
-  String _name = '';
-  late Future<List<dynamic>> _events;
-  bool _editMode = false;
-  DateTime date = DateTime.now();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,11 +63,6 @@ class _EditContactState extends State<EditContact> {
               padding: const EdgeInsets.only(top: 50),
               child: buildBottom(),
             ),
-            // ListView.builder(
-            //     itemCount: user.then((value) => null)),
-            //     itemBuilder: (context, index) {
-            //       return buildPicker('label', date);
-            //     }),
           ],
         ));
   }
@@ -93,66 +96,11 @@ class _EditContactState extends State<EditContact> {
               },
             ),
           ),
-          // ListView(
-          //   shrinkWrap: true,
-          //   physics: const ScrollPhysics(),
-          //   children: [
-          //     for (var event in _events)
-          //     bdatePicker(),
-          //   ],
-          // ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 100, 0, 50),
             child: Column(children: <Widget>[
               getEventList(),
             ]),
-          ),
-        ],
-      );
-
-  Widget bdatePicker() => _DatePickerItem(
-        children: <Widget>[
-          Row(
-            children: const [
-              Text(
-                'Birthday',
-                style: TextStyle(fontSize: 20),
-              ),
-            ],
-          ),
-          const Icon(
-            Icons.double_arrow_rounded,
-            color: Colors.deepPurple,
-          ),
-          // const VerticalDivider(
-          //   thickness: 1,
-          //   color: CupertinoColors.inactiveGray,
-          // ),
-          CupertinoButton(
-            // Display a CupertinoDatePicker in date picker mode.
-            onPressed: !_editMode
-                ? null
-                : () => _showDialog(
-                      CupertinoDatePicker(
-                        initialDateTime: date,
-                        mode: CupertinoDatePickerMode.date,
-                        use24hFormat: true,
-                        // This is called when the user changes the date.
-                        onDateTimeChanged: (DateTime newDate) {
-                          setState(() => date = newDate);
-                        },
-                      ),
-                    ),
-            // In this example, the date value is formatted manually. You can use intl package
-            // to format the value based on user's locale settings.
-            child: Text(
-              '${date.day}-${date.month}-${date.year}',
-              style: const TextStyle(
-                fontSize: 22.0,
-                color: Colors.black,
-              ),
-            ),
           ),
         ],
       );
@@ -167,60 +115,80 @@ class _EditContactState extends State<EditContact> {
             return Column(
               children: <Widget>[
                 buildPicker(
-                    ev.data?[index].keys.toList()[0].toString() ?? 'hello',
-                    date)
+                    // ev.data?[index].keys.toList()[0].toString()
+                    ev.data?[index].keys.first ?? 'error',
+                    DateTime.fromMillisecondsSinceEpoch(
+                        ev.data?[index].values.first.seconds * 1000))
               ],
             );
           },
         );
       });
 
-  //String label = 'dk';
-  Widget buildPicker(label, curDate) => _DatePickerItem(
-        children: <Widget>[
-          Row(
-            children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 20),
-              ),
-            ],
-          ),
-          const Icon(
-            Icons.double_arrow_rounded,
-            color: Colors.deepPurple,
-          ),
-          // const VerticalDivider(
-          //   thickness: 1,
-          //   color: CupertinoColors.inactiveGray,
-          // ),
-          CupertinoButton(
-            // Display a CupertinoDatePicker in date picker mode.
-            onPressed: !_editMode
-                ? null
-                : () => _showDialog(
-                      CupertinoDatePicker(
-                        initialDateTime: curDate,
-                        mode: CupertinoDatePickerMode.date,
-                        use24hFormat: true,
-                        // This is called when the user changes the date.
-                        onDateTimeChanged: (DateTime newDate) {
-                          setState(() => date = newDate);
-                        },
-                      ),
-                    ),
-            // In this example, the date value is formatted manually. You can use intl package
-            // to format the value based on user's locale settings.
-            child: Text(
-              '${date.day}-${date.month}-${date.year}',
-              style: const TextStyle(
-                fontSize: 22.0,
-                color: Colors.black,
+  Widget buildPicker(eventName, eventDate) {
+    dates.putIfAbsent(eventName, () => eventDate);
+    return _DatePickerItem(
+      children: <Widget>[
+        Row(
+          children: [
+            SizedBox(
+              height: 20,
+              width: 173,
+              child: TextFormField(
+                // Edit Mode
+                autocorrect: false,
+                readOnly: !_editMode,
+                enabled: _editMode,
+                // Initial Value
+                initialValue: eventName,
+                // Styling
+                style: const TextStyle(fontSize: 20),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.all(10),
+                ),
               ),
             ),
+          ],
+        ),
+        const VerticalDivider(
+          thickness: 1,
+          color: CupertinoColors.inactiveGray,
+        ),
+        const Icon(
+          Icons.double_arrow_rounded,
+          color: Colors.deepPurple,
+        ),
+        CupertinoButton(
+          // Display a CupertinoDatePicker in date picker mode.
+          onPressed: !_editMode
+              ? null
+              : () => _showDialog(
+                    CupertinoDatePicker(
+                      initialDateTime: dates[eventName],
+                      mode: CupertinoDatePickerMode.date,
+                      use24hFormat: true,
+                      // This is called when the user changes the date.
+                      onDateTimeChanged: (DateTime newDate) {
+                        setState(() => dates[eventName] = newDate);
+                      },
+                    ),
+                  ),
+          // In this example, the date value is formatted manually. You can use intl package
+          // to format the value based on user's locale settings.
+          child: Text(
+            '${dates[eventName]!.day}-${dates[eventName]!.month}-${dates[eventName]!.year}',
+            style: const TextStyle(
+              fontSize: 22.0,
+              color: Colors.black,
+            ),
           ),
-        ],
-      );
+        ),
+      ],
+    );
+  }
 
   PreferredSizeWidget buildAppBar() => AppBar(
         //title: Text('${editMode ? 'Edit' : 'View'} Contact'),
@@ -238,11 +206,12 @@ class _EditContactState extends State<EditContact> {
 
   Widget editBtn() => GestureDetector(
         onTap: () {
-          //user.then((value) => value.getRef().update({}));
           if (_editMode) {
             user.then((value) => value
                 .getRef()
-                .update({'username': _name, 'birthday': date})
+                .update({
+                  'username': _name,
+                })
                 .then((value) => print('user updated'))
                 .catchError((error) => print('error')));
           }
