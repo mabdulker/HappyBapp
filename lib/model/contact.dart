@@ -5,7 +5,7 @@ late var contacts = FirebaseFirestore.instance.collection('user');
 class Contact {
   String id;
   String username;
-  List<dynamic> events;
+  Map<String, dynamic> events;
   // TO ADD: picture url
 
   Contact(this.id, this.username, this.events);
@@ -14,11 +14,7 @@ class Contact {
     return username;
   }
 
-  Future<List<dynamic>> getEvents() async {
-    print(events[0].values.first);
-    Timestamp x = events[0].values.first;
-    DateTime s = DateTime.fromMillisecondsSinceEpoch(x.seconds * 1000);
-    print(s);
+  Future<Map<String, dynamic>> getEvents() async {
     return events;
   }
 
@@ -37,9 +33,9 @@ Future<Contact> getContact(id) async {
   if (docSnapshot.exists) {
     data = docSnapshot.data()!;
     if (data['Events'] != null) {
-      return Contact(id, data['username'], data['Events']);
+      return Contact(id, data['username'], data['events']);
     } else {
-      return Contact(id, data['username'], []);
+      return Contact(id, data['username'], Map());
     }
   } else {
     throw ('Contact does not exist');

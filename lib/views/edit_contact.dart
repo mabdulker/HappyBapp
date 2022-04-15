@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
 import 'package:flutter/foundation.dart';
 
+// TODO: submit updates of dates and names to firebase
 // TODO: changes in ListView are transferred to database
 // TODO: list tile has ability to be deleted
 // TODO: ability to add new tiles
@@ -26,7 +27,7 @@ class EditContact extends StatefulWidget {
 
 class _EditContactState extends State<EditContact> {
   late Future<Contact> user;
-  late Future<List<dynamic>> _events;
+  late Future<Map<String, dynamic>> _events;
   bool _editMode = false;
   String _name = '';
   Map<String, DateTime> dates = new Map<String, DateTime>();
@@ -48,7 +49,7 @@ class _EditContactState extends State<EditContact> {
     });
   }
 
-  Future<List<dynamic>> waitEvents() async {
+  Future<Map<String, dynamic>> waitEvents() async {
     return await _events;
   }
 
@@ -105,7 +106,7 @@ class _EditContactState extends State<EditContact> {
         ],
       );
 
-  Widget getEventList() => FutureBuilder<List<dynamic>>(
+  Widget getEventList() => FutureBuilder<Map<String, dynamic>>(
       future: waitEvents(),
       builder: (context, ev) {
         return ListView.builder(
@@ -115,10 +116,9 @@ class _EditContactState extends State<EditContact> {
             return Column(
               children: <Widget>[
                 buildPicker(
-                    // ev.data?[index].keys.toList()[0].toString()
-                    ev.data?[index].keys.first ?? 'error',
+                    ev.data?.keys.toList()[index] ?? 'error',
                     DateTime.fromMillisecondsSinceEpoch(
-                        ev.data?[index].values.first.seconds * 1000))
+                        ev.data?.values.toList()[index].seconds * 1000))
               ],
             );
           },
@@ -127,13 +127,14 @@ class _EditContactState extends State<EditContact> {
 
   Widget buildPicker(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
+    // TODO: figure out the case where the name is changed
     return _DatePickerItem(
       children: <Widget>[
         Row(
           children: [
             SizedBox(
               height: 20,
-              width: 173,
+              width: 160,
               child: TextFormField(
                 // Edit Mode
                 autocorrect: false,
@@ -211,6 +212,7 @@ class _EditContactState extends State<EditContact> {
                 .getRef()
                 .update({
                   'username': _name,
+                  // 'ev' : _events,
                 })
                 .then((value) => print('user updated'))
                 .catchError((error) => print('error')));
