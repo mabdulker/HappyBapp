@@ -32,7 +32,7 @@ Future<Contact> getContact(id) async {
   late Map<String, dynamic> data;
   if (docSnapshot.exists) {
     data = docSnapshot.data()!;
-    if (data['Events'] != null) {
+    if (data['events'] != null) {
       return Contact(id, data['username'], data['events']);
     } else {
       return Contact(id, data['username'], Map());
@@ -41,18 +41,3 @@ Future<Contact> getContact(id) async {
     throw ('Contact does not exist');
   }
 }
-
-// Future<void> updateContact(id, username, [events]) async {
-//   var docSnapshot = await contacts.doc(id).get();
-//   late Map<String, dynamic> data;
-//   if (docSnapshot.exists) {
-//     data = docSnapshot.data()!;
-//     if (data['events'] != null) {
-//       return Contact(data['username'], data['events']);
-//     } else {
-//       return Contact(data['username']);
-//     }
-//   } else {
-//     throw ('Contact does not exist');
-//   }
-// }

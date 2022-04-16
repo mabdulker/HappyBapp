@@ -126,6 +126,7 @@ class _EditContactState extends State<EditContact> {
       });
 
   Widget buildPicker(eventName, eventDate) {
+    String name = eventName;
     dates.putIfAbsent(eventName, () => eventDate);
     // TODO: figure out the case where the name is changed
     return _DatePickerItem(
@@ -142,6 +143,12 @@ class _EditContactState extends State<EditContact> {
                 enabled: _editMode,
                 // Initial Value
                 initialValue: eventName,
+                // When user changes value name
+                onChanged: (value) {
+                  dates.removeWhere((key, value) => key == name);
+                  dates.putIfAbsent(value, () => eventDate);
+                  name = value;
+                },
                 // Styling
                 style: const TextStyle(fontSize: 20),
                 decoration: const InputDecoration(
@@ -210,12 +217,12 @@ class _EditContactState extends State<EditContact> {
           if (_editMode) {
             user.then((value) => value
                 .getRef()
-                .update({
+                .set({
                   'username': _name,
-                  // 'ev' : _events,
+                  'events': dates,
                 })
                 .then((value) => print('user updated'))
-                .catchError((error) => print('error')));
+                .catchError((error) => print(error)));
           }
           setState(() {
             _editMode = !_editMode;
