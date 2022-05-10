@@ -1,15 +1,14 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
 import 'package:flutter/foundation.dart';
 
+// TODO: ability to add and delete new tiles
 // TODO: submit updates of dates and names to firebase
 // TODO: changes in ListView are transferred to database
 // TODO: list tile has ability to be deleted
-// TODO: ability to add new tiles
 // TODO: Profile picture
 // TODO: Search Implementation
 
@@ -30,8 +29,7 @@ class _EditContactState extends State<EditContact> {
   late Future<Map<String, dynamic>> _events;
   bool _editMode = false;
   String _name = '';
-  Map<String, DateTime> dates = new Map<String, DateTime>();
-  //DateTime date = DateTime(22, 12, 2002);
+  Map<String, DateTime> dates = <String, DateTime>{};
 
   @override
   void initState() {
@@ -49,6 +47,7 @@ class _EditContactState extends State<EditContact> {
     });
   }
 
+  // ? Gets rid of red screen of deat in transitions between screens
   Future<Map<String, dynamic>> waitEvents() async {
     return await _events;
   }
@@ -57,53 +56,39 @@ class _EditContactState extends State<EditContact> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: buildAppBar(),
-        body: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
+        body: Column(
+          children: [
             Padding(
-              padding: const EdgeInsets.only(top: 50),
-              child: buildBottom(),
+                padding: const EdgeInsets.only(top: 50), child: nameField()),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 100, 0, 50),
+              child: getEventList(),
             ),
           ],
         ));
   }
 
-  // Assemble Bottom page
-  Widget buildBottom() => Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.zero,
-            child: TextFormField(
-              // Edit Mode
-              autocorrect: false,
-              readOnly: !_editMode,
-              enabled: _editMode,
-              // Text Field
-              key: Key(_name),
-              initialValue: _name,
-              decoration: const InputDecoration(
-                //icon: Icon(Icons.account_circle_outlined, size: 30),
-                hintText: 'Name',
-                prefixIcon: Icon(
-                  Icons.account_circle_outlined,
-                  size: 30,
-                  color: Colors.blueGrey,
-                ),
-                fillColor: Colors.white,
-                filled: false,
-              ),
-              onChanged: (value) {
-                _name = value;
-              },
-            ),
+  Widget nameField() => TextFormField(
+        autocorrect: false,
+        readOnly: !_editMode,
+        enabled: _editMode,
+        // Text Field
+        key: Key(_name),
+        initialValue: _name,
+        decoration: const InputDecoration(
+          //icon: Icon(Icons.account_circle_outlined, size: 30),
+          hintText: 'Name',
+          prefixIcon: Icon(
+            Icons.account_circle_outlined,
+            size: 30,
+            color: Colors.blueGrey,
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 100, 0, 50),
-            child: Column(children: <Widget>[
-              getEventList(),
-            ]),
-          ),
-        ],
+          fillColor: Colors.white,
+          filled: false,
+        ),
+        onChanged: (value) {
+          _name = value;
+        },
       );
 
   Widget getEventList() => FutureBuilder<Map<String, dynamic>>(
@@ -251,7 +236,7 @@ class _EditContactState extends State<EditContact> {
                     ),
                     BoxShadow(
                       color: Colors.deepPurple[400]!,
-                      offset: Offset(-4, -4),
+                      offset: const Offset(-4, -4),
                       blurRadius: 15,
                       spreadRadius: 1,
                     ),
