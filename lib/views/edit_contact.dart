@@ -47,7 +47,7 @@ class _EditContactState extends State<EditContact> {
     });
   }
 
-  // ? Gets rid of red screen of deat in transitions between screens
+  // ? Gets rid of red screen of death in transitions between screens
   Future<Map<String, dynamic>> waitEvents() async {
     return await _events;
   }
@@ -60,7 +60,7 @@ class _EditContactState extends State<EditContact> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
-              child: nameField(),
+              child: contactNameField(),
             ),
             Align(
               alignment: Alignment.centerLeft,
@@ -74,15 +74,25 @@ class _EditContactState extends State<EditContact> {
         ));
   }
 
-  Widget header(String title) => Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 45,
-        ),
+  // * App bar
+
+  PreferredSizeWidget buildAppBar() => AppBar(
+        //title: Text('${editMode ? 'Edit' : 'View'} Contact'),
+        backgroundColor: Colors.deepPurple,
+        automaticallyImplyLeading: !_editMode,
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Container(
+              child: editBtn(),
+            ),
+          ),
+        ],
       );
 
-  Widget nameField() => TextFormField(
+  // * Field for user to enter contact name
+
+  Widget contactNameField() => TextFormField(
         autocorrect: false,
         readOnly: !_editMode,
         enabled: _editMode,
@@ -105,26 +115,61 @@ class _EditContactState extends State<EditContact> {
         },
       );
 
+  // * Header style text widget generator
+
+  Widget header(String title) => Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 45,
+        ),
+      );
+
+  // ? Event List: Creates a list of editable tiles
+  // * Gets the list of events from firestore
+
   Widget getEventList() => FutureBuilder<Map<String, dynamic>>(
       future: waitEvents(),
       builder: (context, ev) {
-        return ListView.builder(
+        return ListView.separated(
           shrinkWrap: true,
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           itemCount: ev.data?.length ?? 0,
           itemBuilder: (context, index) {
             return Column(
               children: <Widget>[
-                buildPicker(
+                buildEventTile(
                     ev.data?.keys.toList()[index] ?? 'error',
                     DateTime.fromMillisecondsSinceEpoch(
                         ev.data?.values.toList()[index].seconds * 1000))
               ],
             );
           },
+          separatorBuilder: (BuildContext context, int index) =>
+              const Divider(),
         );
       });
 
-  Widget eventnameField(eventName, eventDate) {
+  // * List view tile builder
+
+  Widget buildEventTile(eventName, eventDate) {
+    dates.putIfAbsent(eventName, () => eventDate);
+    // TODO: figure out the case where the name is changed
+    return _DatePickerItem(
+      children: <Widget>[
+        Expanded(flex: 5, child: eventNameField(eventName, eventDate)),
+        const Icon(
+          Icons.double_arrow_rounded,
+          color: Colors.deepPurple,
+        ),
+        Expanded(flex: 5, child: datePicker(eventName)),
+      ],
+    );
+  }
+
+  // * TextField for editing eventName field of tile
+
+  Widget eventNameField(eventName, eventDate) {
     String name = eventName;
     return TextFormField(
       // Edit Mode
@@ -150,20 +195,7 @@ class _EditContactState extends State<EditContact> {
     );
   }
 
-  Widget buildPicker(eventName, eventDate) {
-    dates.putIfAbsent(eventName, () => eventDate);
-    // TODO: figure out the case where the name is changed
-    return _DatePickerItem(
-      children: <Widget>[
-        Expanded(flex: 5, child: eventnameField(eventName, eventDate)),
-        const Icon(
-          Icons.double_arrow_rounded,
-          color: Colors.deepPurple,
-        ),
-        Expanded(flex: 5, child: datePicker(eventName)),
-      ],
-    );
-  }
+  // * Creates a cupertino style picker with ability to edit
 
   Widget datePicker(eventName) => CupertinoButton(
         // Display a CupertinoDatePicker in date picker mode.
@@ -191,19 +223,7 @@ class _EditContactState extends State<EditContact> {
         ),
       );
 
-  PreferredSizeWidget buildAppBar() => AppBar(
-        //title: Text('${editMode ? 'Edit' : 'View'} Contact'),
-        backgroundColor: Colors.deepPurple,
-        automaticallyImplyLeading: !_editMode,
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              child: editBtn(),
-            ),
-          ),
-        ],
-      );
+  // * Implements funcitonality and visual for the edit button
 
   Widget editBtn() => GestureDetector(
         onTap: () {
@@ -255,7 +275,8 @@ class _EditContactState extends State<EditContact> {
         ),
       );
 
-  // This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoDatePicker.
+  // * This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoDatePicker
+
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
         context: context,
@@ -277,7 +298,8 @@ class _EditContactState extends State<EditContact> {
   }
 }
 
-// This class simply decorates a row of widgets.
+// * This class decorates the event tile
+
 class _DatePickerItem extends StatelessWidget {
   const _DatePickerItem({required this.children});
 
@@ -286,20 +308,15 @@ class _DatePickerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: CupertinoColors.inactiveGray,
-            width: 0.0,
-          ),
-          bottom: BorderSide(
-            color: CupertinoColors.inactiveGray,
-            width: 0.0,
-          ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: CupertinoColors.inactiveGray,
+          width: 0.0,
         ),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: IntrinsicHeight(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
