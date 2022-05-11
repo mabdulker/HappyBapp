@@ -156,19 +156,22 @@ class _EditContactState extends State<EditContact> {
   Widget test(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
     return Slidable(
-      endActionPane: const ActionPane(
-        motion: ScrollMotion(),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: FloatingActionButton(
-              onPressed: null,
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.black,
-              child: Icon(Icons.disabled_by_default_rounded),
-              elevation: 0,
-            ),
-          )
+          // Padding(
+          //   padding: EdgeInsets.symmetric(horizontal: 10),
+          //   child: FloatingActionButton(
+          //     onPressed: null,
+          //     backgroundColor: Colors.red,
+          //     foregroundColor: Colors.black,
+          //     child: Icon(
+          //       Icons.disabled_by_default_rounded,
+          //       color: Colors.white,
+          //     ),
+          //     elevation: 0,
+          //   ),
+          // )
 
           // CircleAvatar(
           //   child: Icon(Icons.delete_outline),
@@ -177,16 +180,23 @@ class _EditContactState extends State<EditContact> {
           //   radius: 35,
 
           // ),
-          // CustomSlidableAction(
-
-          //   flex: 1,
-          //   autoClose: true,
-          //   onPressed: ((context) {}),
-          //   backgroundColor: Colors.redAccent,
-          //   //foregroundColor: Colors.black,
-          //   //icon: Icons.delete,
-          //   //label: 'Delete',
-          // )
+          CustomSlidableAction(
+            child: const Text('Delete'),
+            autoClose: true,
+            onPressed: ((context) {
+              dates.removeWhere((key, value) => key == eventName);
+              user.then((value) => value
+                  .getRef()
+                  .set({
+                    'events': dates,
+                  })
+                  .then((value) => print('deleted users'))
+                  .catchError((error) => print(error)));
+              print(eventName);
+              // dates.removeWhere((key, value) => key == eventName);
+            }),
+            backgroundColor: Colors.redAccent,
+          ),
         ],
         extentRatio: 0.20,
       ),
@@ -364,7 +374,7 @@ class _DatePickerItem extends StatelessWidget {
           color: CupertinoColors.inactiveGray,
           width: 0.0,
         ),
-        borderRadius: BorderRadius.circular(10),
+        //borderRadius: BorderRadius.circular(10),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
