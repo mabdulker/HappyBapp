@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:test_flutter/model/contact.dart';
 import 'package:flutter/foundation.dart';
 
@@ -133,12 +134,12 @@ class _EditContactState extends State<EditContact> {
       builder: (context, ev) {
         return ListView.separated(
           shrinkWrap: true,
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
           itemCount: ev.data?.length ?? 0,
           itemBuilder: (context, index) {
             return Column(
               children: <Widget>[
-                buildEventTile(
+                test(
                     ev.data?.keys.toList()[index] ?? 'error',
                     DateTime.fromMillisecondsSinceEpoch(
                         ev.data?.values.toList()[index].seconds * 1000))
@@ -151,6 +152,56 @@ class _EditContactState extends State<EditContact> {
       });
 
   // * List view tile builder
+
+  Widget test(eventName, eventDate) {
+    dates.putIfAbsent(eventName, () => eventDate);
+    return Slidable(
+      endActionPane: const ActionPane(
+        motion: ScrollMotion(),
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: FloatingActionButton(
+              onPressed: null,
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.black,
+              child: Icon(Icons.disabled_by_default_rounded),
+              elevation: 0,
+            ),
+          )
+
+          // CircleAvatar(
+          //   child: Icon(Icons.delete_outline),
+          //   backgroundColor: Colors.green,
+          //   foregroundColor: Colors.black,
+          //   radius: 35,
+
+          // ),
+          // CustomSlidableAction(
+
+          //   flex: 1,
+          //   autoClose: true,
+          //   onPressed: ((context) {}),
+          //   backgroundColor: Colors.redAccent,
+          //   //foregroundColor: Colors.black,
+          //   //icon: Icons.delete,
+          //   //label: 'Delete',
+          // )
+        ],
+        extentRatio: 0.20,
+      ),
+      child: _DatePickerItem(
+        children: <Widget>[
+          Expanded(flex: 5, child: eventNameField(eventName, eventDate)),
+          const Icon(
+            Icons.double_arrow_rounded,
+            color: Colors.deepPurple,
+          ),
+          Expanded(flex: 5, child: datePicker(eventName)),
+        ],
+      ),
+    );
+  }
 
   Widget buildEventTile(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
