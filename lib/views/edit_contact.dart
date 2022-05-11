@@ -59,14 +59,28 @@ class _EditContactState extends State<EditContact> {
         body: Column(
           children: [
             Padding(
-                padding: const EdgeInsets.only(top: 50), child: nameField()),
+              padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
+              child: nameField(),
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: header('Events'),
+            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 100, 0, 50),
+              padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
               child: getEventList(),
             ),
           ],
         ));
   }
+
+  Widget header(String title) => Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 45,
+        ),
+      );
 
   Widget nameField() => TextFormField(
         autocorrect: false,
@@ -110,78 +124,72 @@ class _EditContactState extends State<EditContact> {
         );
       });
 
-  Widget buildPicker(eventName, eventDate) {
+  Widget eventnameField(eventName, eventDate) {
     String name = eventName;
+    return TextFormField(
+      // Edit Mode
+      autocorrect: false,
+      readOnly: !_editMode,
+      enabled: _editMode,
+      // Initial Value
+      initialValue: eventName,
+      // When user changes value name
+      onChanged: (value) {
+        dates.removeWhere((key, value) => key == name);
+        dates.putIfAbsent(value, () => eventDate);
+        name = value;
+      },
+      // Styling
+      style: const TextStyle(fontSize: 20),
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        contentPadding: EdgeInsets.all(10),
+      ),
+    );
+  }
+
+  Widget buildPicker(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
     // TODO: figure out the case where the name is changed
     return _DatePickerItem(
       children: <Widget>[
-        Row(
-          children: [
-            SizedBox(
-              height: 20,
-              width: 160,
-              child: TextFormField(
-                // Edit Mode
-                autocorrect: false,
-                readOnly: !_editMode,
-                enabled: _editMode,
-                // Initial Value
-                initialValue: eventName,
-                // When user changes value name
-                onChanged: (value) {
-                  dates.removeWhere((key, value) => key == name);
-                  dates.putIfAbsent(value, () => eventDate);
-                  name = value;
-                },
-                // Styling
-                style: const TextStyle(fontSize: 20),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  contentPadding: EdgeInsets.all(10),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const VerticalDivider(
-          thickness: 1,
-          color: CupertinoColors.inactiveGray,
-        ),
+        Expanded(flex: 5, child: eventnameField(eventName, eventDate)),
         const Icon(
           Icons.double_arrow_rounded,
           color: Colors.deepPurple,
         ),
-        CupertinoButton(
-          // Display a CupertinoDatePicker in date picker mode.
-          onPressed: !_editMode
-              ? null
-              : () => _showDialog(
-                    CupertinoDatePicker(
-                      initialDateTime: dates[eventName],
-                      mode: CupertinoDatePickerMode.date,
-                      use24hFormat: true,
-                      // This is called when the user changes the date.
-                      onDateTimeChanged: (DateTime newDate) {
-                        setState(() => dates[eventName] = newDate);
-                      },
-                    ),
-                  ),
-          // In this example, the date value is formatted manually. You can use intl package
-          // to format the value based on user's locale settings.
-          child: Text(
-            '${dates[eventName]!.day}-${dates[eventName]!.month}-${dates[eventName]!.year}',
-            style: const TextStyle(
-              fontSize: 22.0,
-              color: Colors.black,
-            ),
-          ),
-        ),
+        Expanded(flex: 5, child: datePicker(eventName)),
       ],
     );
   }
+
+  Widget datePicker(eventName) => CupertinoButton(
+        // Display a CupertinoDatePicker in date picker mode.
+        onPressed: !_editMode
+            ? null
+            : () => _showDialog(
+                  CupertinoDatePicker(
+                    initialDateTime: dates[eventName],
+                    mode: CupertinoDatePickerMode.date,
+                    use24hFormat: true,
+                    // This is called when the user changes the date.
+                    onDateTimeChanged: (DateTime newDate) {
+                      setState(() => dates[eventName] = newDate);
+                    },
+                  ),
+                ),
+        // In this example, the date value is formatted manually. You can use intl package
+        // to format the value based on user's locale settings.
+        child: Text(
+          '${dates[eventName]!.day}-${dates[eventName]!.month}-${dates[eventName]!.year}',
+          style: const TextStyle(
+            fontSize: 22.0,
+            color: Colors.black,
+          ),
+        ),
+      );
 
   PreferredSizeWidget buildAppBar() => AppBar(
         //title: Text('${editMode ? 'Edit' : 'View'} Contact'),
@@ -213,6 +221,7 @@ class _EditContactState extends State<EditContact> {
             _editMode = !_editMode;
           });
         },
+        // Neumorphism implementation
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           height: 10,
