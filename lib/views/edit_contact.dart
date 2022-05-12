@@ -7,9 +7,9 @@ import 'package:test_flutter/model/contact.dart';
 import 'package:flutter/foundation.dart';
 
 // TODO: ability to add and delete new tiles
+// TODO: make updates happen in real time
 // TODO: submit updates of dates and names to firebase
 // TODO: changes in ListView are transferred to database
-// TODO: list tile has ability to be deleted
 // TODO: Profile picture
 // TODO: Search Implementation
 
