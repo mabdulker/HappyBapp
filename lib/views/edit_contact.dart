@@ -6,12 +6,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:test_flutter/model/contact.dart';
 import 'package:flutter/foundation.dart';
 
-// TODO: ability to add and delete new tiles
+// TODO: ability to add and delete tiles
 // TODO: make updates happen in real time
-// TODO: submit updates of dates and names to firebase
-// TODO: changes in ListView are transferred to database
 // TODO: Profile picture
-// TODO: Search Implementation
 
 class EditContact extends StatefulWidget {
   final String docId;
@@ -56,23 +53,33 @@ class _EditContactState extends State<EditContact> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: buildAppBar(),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
-              child: contactNameField(),
-            ),
-            Align(
+      appBar: buildAppBar(),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
+            child: contactNameField(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
+            child: Align(
               alignment: Alignment.centerLeft,
-              child: header('Events'),
+              child: Row(
+                children: [
+                  header('Events'),
+                  const Spacer(),
+                  addBtn(),
+                ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-              child: getEventList(),
-            ),
-          ],
-        ));
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
+            child: getEventList(),
+          ),
+        ],
+      ),
+    );
   }
 
   // * App bar
@@ -140,9 +147,10 @@ class _EditContactState extends State<EditContact> {
             return Column(
               children: <Widget>[
                 test(
-                    ev.data?.keys.toList()[index] ?? 'error',
-                    DateTime.fromMillisecondsSinceEpoch(
-                        ev.data?.values.toList()[index].seconds * 1000))
+                  ev.data?.keys.toList()[index] ?? 'error',
+                  DateTime.fromMillisecondsSinceEpoch(
+                      ev.data?.values.toList()[index].seconds * 1000),
+                )
               ],
             );
           },
@@ -155,50 +163,19 @@ class _EditContactState extends State<EditContact> {
 
   Widget test(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
-    return Slidable(
-      endActionPane: ActionPane(
-        motion: const ScrollMotion(),
-        children: [
-          // Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: 10),
-          //   child: FloatingActionButton(
-          //     onPressed: null,
-          //     backgroundColor: Colors.red,
-          //     foregroundColor: Colors.black,
-          //     child: Icon(
-          //       Icons.disabled_by_default_rounded,
-          //       color: Colors.white,
-          //     ),
-          //     elevation: 0,
-          //   ),
-          // )
-
-          // CircleAvatar(
-          //   child: Icon(Icons.delete_outline),
-          //   backgroundColor: Colors.green,
-          //   foregroundColor: Colors.black,
-          //   radius: 35,
-
-          // ),
-          CustomSlidableAction(
-            child: const Text('Delete'),
-            autoClose: true,
-            onPressed: ((context) {
-              dates.removeWhere((key, value) => key == eventName);
-              user.then((value) => value
-                  .getRef()
-                  .set({
-                    'events': dates,
-                  })
-                  .then((value) => print('deleted users'))
-                  .catchError((error) => print(error)));
-              print(eventName);
-              // dates.removeWhere((key, value) => key == eventName);
-            }),
-            backgroundColor: Colors.redAccent,
-          ),
-        ],
-        extentRatio: 0.20,
+    return Dismissible(
+      movementDuration: const Duration(milliseconds: 300),
+      direction: DismissDirection.endToStart,
+      key: Key(eventName),
+      onDismissed: (direction) {
+        // TODO: add database implementation
+      },
+      background: Container(
+        color: Colors.red,
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
       ),
       child: _DatePickerItem(
         children: <Widget>[
@@ -213,6 +190,8 @@ class _EditContactState extends State<EditContact> {
     );
   }
 
+  // * Creates an event tile which is used by the ListView builder
+
   Widget buildEventTile(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
     // TODO: figure out the case where the name is changed
@@ -221,7 +200,7 @@ class _EditContactState extends State<EditContact> {
         Expanded(flex: 5, child: eventNameField(eventName, eventDate)),
         const Icon(
           Icons.double_arrow_rounded,
-          color: Colors.deepPurple,
+          color: Colors.deepPurpleAccent,
         ),
         Expanded(flex: 5, child: datePicker(eventName)),
       ],
@@ -336,26 +315,37 @@ class _EditContactState extends State<EditContact> {
         ),
       );
 
+  // * Circle button used to add events to event list
+
+  Widget addBtn() => const FloatingActionButton(
+        // TODO: add functionality to the add button
+        onPressed: null,
+        elevation: 0,
+        backgroundColor: Colors.green,
+        child: Icon(Icons.add_box, color: Colors.white),
+      );
+
   // * This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoDatePicker
 
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
-        context: context,
-        builder: (BuildContext context) => Container(
-              height: 216,
-              padding: const EdgeInsets.only(top: 6.0),
-              // The Bottom margin is provided to align the popup above the system navigation bar.
-              margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              // Provide a background color for the popup.
-              color: CupertinoColors.systemBackground.resolveFrom(context),
-              // Use a SafeArea widget to avoid system overlaps.
-              child: SafeArea(
-                top: false,
-                child: child,
-              ),
-            ));
+      context: context,
+      builder: (BuildContext context) => Container(
+        height: 216,
+        padding: const EdgeInsets.only(top: 6.0),
+        // The Bottom margin is provided to align the popup above the system navigation bar.
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        // Provide a background color for the popup.
+        color: CupertinoColors.systemBackground.resolveFrom(context),
+        // Use a SafeArea widget to avoid system overlaps.
+        child: SafeArea(
+          top: false,
+          child: child,
+        ),
+      ),
+    );
   }
 }
 
@@ -388,3 +378,53 @@ class _DatePickerItem extends StatelessWidget {
     );
   }
 }
+
+
+// GARBAGE
+
+// key: Key(eventName),
+      
+//       endActionPane: ActionPane(
+//         motion: const ScrollMotion(),
+//         children: [
+
+//           // Padding(
+//           //   padding: EdgeInsets.symmetric(horizontal: 10),
+//           //   child: FloatingActionButton(
+//           //     onPressed: null,
+//           //     backgroundColor: Colors.red,
+//           //     foregroundColor: Colors.black,
+//           //     child: Icon(
+//           //       Icons.disabled_by_default_rounded,
+//           //       color: Colors.white,
+//           //     ),
+//           //     elevation: 0,
+//           //   ),
+//           // )
+
+//           // CircleAvatar(
+//           //   child: Icon(Icons.delete_outline),
+//           //   backgroundColor: Colors.green,
+//           //   foregroundColor: Colors.black,
+//           //   radius: 35,
+
+//           // ),
+//           CustomSlidableAction(
+//             child: const Text('Delete'),
+//             autoClose: true,
+//             onPressed: ((context) {
+//               dates.removeWhere((key, value) => key == eventName);
+//               user.then((value) => value
+//                   .getRef()
+//                   .set({
+//                     'events': dates,
+//                   })
+//                   .then((value) => print('deleted users'))
+//                   .catchError((error) => print(error)));
+//               print(eventName);
+//               // dates.removeWhere((key, value) => key == eventName);
+//             }),
+//             backgroundColor: Colors.redAccent,
+//           ),
+//         ],
+//         extentRatio: 0.20,
