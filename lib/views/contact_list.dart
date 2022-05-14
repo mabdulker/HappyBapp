@@ -49,7 +49,7 @@ class _ContactsState extends State<Contacts> {
                     Icon(Icons.search, color: Theme.of(context).primaryColor),
               ),
             ),
-            Expanded(child: ContactList()),
+            const Expanded(child: ContactList()),
           ],
         ),
       ),

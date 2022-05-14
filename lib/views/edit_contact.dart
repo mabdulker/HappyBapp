@@ -23,7 +23,7 @@ class EditContact extends StatefulWidget {
 }
 
 class _EditContactState extends State<EditContact> {
-  late Future<Contact> user;
+  late Future<Contact> contact;
   late Future<Map<String, dynamic>> _events;
   bool _editMode = false;
   String _name = '';
@@ -33,11 +33,11 @@ class _EditContactState extends State<EditContact> {
   void initState() {
     super.initState();
     setState(() {
-      user = getContact(widget.docId);
+      contact = getContact(widget.docId);
     });
-    user.then((value) {
+    contact.then((value) {
       setState(() {
-        _name = value.getUsername();
+        _name = value.getName();
         _events = value.getEvents();
       });
       print(_name);
@@ -268,14 +268,7 @@ class _EditContactState extends State<EditContact> {
   Widget editBtn() => GestureDetector(
         onTap: () {
           if (_editMode) {
-            user.then((value) => value
-                .getRef()
-                .set({
-                  'username': _name,
-                  'events': dates,
-                })
-                .then((value) => print('user updated'))
-                .catchError((error) => print(error)));
+            setDates(contact, _name, dates);
           }
           setState(() {
             _editMode = !_editMode;

@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "FlutterApp",
       theme: ThemeData.light(),
-      home: Contacts(),
+      home: const Contacts(),
     );
   }
 }

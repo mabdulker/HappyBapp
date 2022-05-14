@@ -1,17 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:test_flutter/model/events.dart';
 
 late var contacts = FirebaseFirestore.instance.collection('user');
 
 class Contact {
   String id;
-  String username;
-  Map<String, dynamic> events;
-  // TO ADD: picture url
+  String name;
+  Map<String, Event> events;
+  //Events evts;
+  // TODO: add picture url
 
-  Contact(this.id, this.username, this.events);
+  Contact(this.id, this.name, this.events);
 
-  String getUsername() {
-    return username;
+  String getName() {
+    return name;
   }
 
   Future<Map<String, dynamic>> getEvents() async {
@@ -35,9 +37,24 @@ Future<Contact> getContact(id) async {
     if (data['events'] != null) {
       return Contact(id, data['username'], data['events']);
     } else {
-      return Contact(id, data['username'], Map());
+      return Contact(id, data['username'], {});
     }
   } else {
     throw ('Contact does not exist');
   }
+}
+
+void setDates(contact, contactName, contactEvents) {
+  contact.then((value) => value
+      .getRef()
+      .set({
+        'username': contactName,
+        'events': contactEvents,
+      })
+      .then((value) => print('user updated'))
+      .catchError((error) => print(error)));
+}
+
+void main(List<String> args) {
+  print('hello');
 }
