@@ -6,7 +6,7 @@ class Event {
 }
 
 class Events {
-  Map<String, Event> events;
+  List<Event> events;
 
   Events(this.events);
 
@@ -14,11 +14,3 @@ class Events {
     print('martin');
   }
 }
-
-// Events getEvents(Map<String, dynamic> fbEvents) {
-//   Events x;
-//   fbEvents.forEach((key, value) {
-//     x.addEvent(Event(key, value));
-//     },
-//   );
-// }
