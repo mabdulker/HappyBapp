@@ -6,7 +6,7 @@ late var contacts = FirebaseFirestore.instance.collection('user');
 class Contact {
   String id;
   String name;
-  Map<String, Event> events;
+  Map<String, dynamic> events;
   //Events evts;
   // TODO: add picture url
 
@@ -53,8 +53,4 @@ void setDates(contact, contactName, contactEvents) {
       })
       .then((value) => print('user updated'))
       .catchError((error) => print(error)));
-}
-
-void main(List<String> args) {
-  print('hello');
 }
