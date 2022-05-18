@@ -4,9 +4,9 @@ import 'package:test_flutter/model/events.dart';
 late var contacts = FirebaseFirestore.instance.collection('user');
 
 class Contact {
-  String id;
-  String name;
-  Map<String, dynamic> events;
+  late String id;
+  late String name;
+  late Map<String, dynamic> events;
   //Events evts;
   // TODO: add picture url
 

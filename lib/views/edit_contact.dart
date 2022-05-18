@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,6 +29,7 @@ class _EditContactState extends State<EditContact> {
   bool _editMode = false;
   String _name = '';
   Map<String, DateTime> dates = <String, DateTime>{};
+  DateTime time = DateTime.now();
 
   @override
   void initState() {
@@ -310,15 +312,57 @@ class _EditContactState extends State<EditContact> {
 
   // * Circle button used to add events to event list
 
-  Widget addBtn() => const FloatingActionButton(
-        // TODO: add functionality to the add button
-        onPressed: null,
+  Widget addBtn() => FloatingActionButton(
+        // TODO: add functionality to the add button ( should bring up prompt )
+        onPressed: () {
+          openDialog();
+        },
         elevation: 0,
         backgroundColor: Colors.green,
-        child: Icon(Icons.add_box, color: Colors.white),
+        child: const Icon(Icons.add_box, color: Colors.white),
       );
 
-  // * This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoDatePicker
+  // ? for tomorrow - think about separating the picker from build picker, implement add button
+  Future openDialog() => showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        DateTime tt = DateTime.now();
+        return StatefulBuilder(builder: (context, setState) {
+          return CupertinoAlertDialog(
+            title: const Text('Add Event'),
+            content: CupertinoButton(
+              // Display a CupertinoDatePicker in date picker mode.
+              onPressed: () => _showDialog(
+                CupertinoDatePicker(
+                  initialDateTime: tt,
+                  mode: CupertinoDatePickerMode.date,
+                  use24hFormat: true,
+                  // This is called when the user changes the date.
+                  onDateTimeChanged: (DateTime newDate) {
+                    setState(() => tt = newDate);
+                  },
+                ),
+              ),
+              // In this example, the date value is formatted manually. You can use intl package
+              // to format the value based on user's locale settings.
+              child: Text(
+                '${tt.day}-${tt.month}-${tt.year}',
+                style: const TextStyle(
+                  fontSize: 22.0,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            actions: const [
+              CupertinoDialogAction(child: Text('Cancel')),
+              CupertinoDialogAction(child: Text('Submit')),
+            ],
+          );
+        });
+      });
+
+  // * This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoDatePicker (styling for CDP)
 
   void _showDialog(Widget child) {
     showCupertinoModalPopup<void>(
