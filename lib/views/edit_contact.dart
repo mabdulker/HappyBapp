@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
@@ -322,7 +323,8 @@ class _EditContactState extends State<EditContact> {
       context: context,
       barrierDismissible: true,
       builder: (context) {
-        DateTime date = DateTime.now();
+        DateTime eventDate = DateTime.now();
+        String eventName = '';
         return StatefulBuilder(builder: (context, setState) {
           return CupertinoAlertDialog(
             content: Column(
@@ -347,19 +349,19 @@ class _EditContactState extends State<EditContact> {
                         // Display a CupertinoDatePicker in date picker mode.
                         onPressed: () => _showDialog(
                           CupertinoDatePicker(
-                            initialDateTime: date,
+                            initialDateTime: eventDate,
                             mode: CupertinoDatePickerMode.date,
                             use24hFormat: true,
                             // This is called when the user changes the date.
                             onDateTimeChanged: (DateTime newDate) {
-                              setState(() => date = newDate);
+                              setState(() => eventDate = newDate);
                             },
                           ),
                         ),
                         // In this example, the date value is formatted manually. You can use intl package
                         // to format the value based on user's locale settings.
                         child: Text(
-                          '${date.day}-${date.month}-${date.year}',
+                          '${eventDate.day}-${eventDate.month}-${eventDate.year}',
                           style: const TextStyle(
                             fontSize: 20.0,
                             color: Colors.blue,
@@ -383,7 +385,8 @@ class _EditContactState extends State<EditContact> {
               CupertinoDialogAction(
                 // TODO: implement real data input
                 onPressed: () {
-                  addEvent(contact, 'ab', DateTime.now());
+                  print(eventDate);
+                  addEvent(contact, 'ap', eventDate);
                   Navigator.pop(context);
                 },
                 isDefaultAction: true,
