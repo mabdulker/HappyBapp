@@ -382,7 +382,10 @@ class _EditContactState extends State<EditContact> {
               ),
               CupertinoDialogAction(
                 // TODO: implement real data input
-                onPressed: () => addEvent(contact, 'ab', DateTime.now()),
+                onPressed: () {
+                  addEvent(contact, 'ab', DateTime.now());
+                  Navigator.pop(context);
+                },
                 isDefaultAction: true,
                 child: const Text('Add Event'),
               ),
