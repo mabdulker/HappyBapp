@@ -1,11 +1,6 @@
-import 'dart:developer';
-import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:test_flutter/model/contact.dart';
-import 'package:flutter/foundation.dart';
 
 // TODO: ability to add and delete tiles
 // TODO: make updates happen in real time
@@ -258,9 +253,9 @@ class _EditContactState extends State<EditContact> {
         // to format the value based on user's locale settings.
         child: Text(
           '${dates[eventName]!.day}-${dates[eventName]!.month}-${dates[eventName]!.year}',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22.0,
-            color: Colors.black,
+            color: !_editMode ? Colors.black : Colors.blue,
           ),
         ),
       );
@@ -330,33 +325,66 @@ class _EditContactState extends State<EditContact> {
         DateTime tt = DateTime.now();
         return StatefulBuilder(builder: (context, setState) {
           return CupertinoAlertDialog(
-            title: const Text('Add Event'),
-            content: CupertinoButton(
-              // Display a CupertinoDatePicker in date picker mode.
-              onPressed: () => _showDialog(
-                CupertinoDatePicker(
-                  initialDateTime: tt,
-                  mode: CupertinoDatePickerMode.date,
-                  use24hFormat: true,
-                  // This is called when the user changes the date.
-                  onDateTimeChanged: (DateTime newDate) {
-                    setState(() => tt = newDate);
-                  },
+            content: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                  child: const CupertinoTextField(
+                    autocorrect: false,
+                    placeholder: 'Event Name',
+                  ),
                 ),
-              ),
-              // In this example, the date value is formatted manually. You can use intl package
-              // to format the value based on user's locale settings.
-              child: Text(
-                '${tt.day}-${tt.month}-${tt.year}',
-                style: const TextStyle(
-                  fontSize: 22.0,
-                  color: Colors.black,
-                ),
-              ),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Date: ',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      const Spacer(),
+                      CupertinoButton(
+                        // Display a CupertinoDatePicker in date picker mode.
+                        onPressed: () => _showDialog(
+                          CupertinoDatePicker(
+                            initialDateTime: tt,
+                            mode: CupertinoDatePickerMode.date,
+                            use24hFormat: true,
+                            // This is called when the user changes the date.
+                            onDateTimeChanged: (DateTime newDate) {
+                              setState(() => tt = newDate);
+                            },
+                          ),
+                        ),
+                        // In this example, the date value is formatted manually. You can use intl package
+                        // to format the value based on user's locale settings.
+                        child: Text(
+                          '${tt.day}-${tt.month}-${tt.year}',
+                          style: const TextStyle(
+                            fontSize: 20.0,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
-            actions: const [
-              CupertinoDialogAction(child: Text('Cancel')),
-              CupertinoDialogAction(child: Text('Submit')),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                isDefaultAction: true,
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+              CupertinoDialogAction(
+                onPressed: () => print("object"),
+                isDefaultAction: true,
+                child: const Text('Add Event'),
+              ),
             ],
           );
         });
