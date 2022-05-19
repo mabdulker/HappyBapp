@@ -52,6 +52,13 @@ void addEvent(contact, eventName, eventDate) async {
       (value) => print('user upd'));
 }
 
+void deleteEvent(contact, eventName) async {
+  Contact val = await contact;
+  val.events.remove(eventName);
+  val.getRef().set({'events': val.events, 'username': val.getName()}).then(
+      (value) => print('user deleted'));
+}
+
 void setDates(contact, contactName, contactEvents) {
   contact.then((value) => value
       .getRef()

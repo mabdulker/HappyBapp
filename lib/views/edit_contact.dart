@@ -166,7 +166,7 @@ class _EditContactState extends State<EditContact> {
       direction: DismissDirection.endToStart,
       key: Key(eventName),
       onDismissed: (direction) {
-        // TODO: add database implementation
+        deleteEvent(contact, eventName);
       },
       background: Container(
         color: Colors.red,
@@ -387,7 +387,6 @@ class _EditContactState extends State<EditContact> {
               ),
               CupertinoDialogAction(
                 onPressed: () {
-                  print(eventName);
                   addEvent(contact, eventName, eventDate);
                   Navigator.pop(context);
                 },
