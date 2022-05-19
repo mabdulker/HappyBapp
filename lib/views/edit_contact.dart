@@ -331,7 +331,10 @@ class _EditContactState extends State<EditContact> {
               children: [
                 Container(
                   padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                  child: const CupertinoTextField(
+                  child: CupertinoTextField(
+                    onChanged: (value) {
+                      eventName = value;
+                    },
                     autocorrect: false,
                     placeholder: 'Event Name',
                   ),
@@ -383,10 +386,9 @@ class _EditContactState extends State<EditContact> {
                 ),
               ),
               CupertinoDialogAction(
-                // TODO: implement real data input
                 onPressed: () {
-                  print(eventDate);
-                  addEvent(contact, 'ap', eventDate);
+                  print(eventName);
+                  addEvent(contact, eventName, eventDate);
                   Navigator.pop(context);
                 },
                 isDefaultAction: true,
