@@ -322,7 +322,7 @@ class _EditContactState extends State<EditContact> {
       context: context,
       barrierDismissible: true,
       builder: (context) {
-        DateTime tt = DateTime.now();
+        DateTime date = DateTime.now();
         return StatefulBuilder(builder: (context, setState) {
           return CupertinoAlertDialog(
             content: Column(
@@ -347,19 +347,19 @@ class _EditContactState extends State<EditContact> {
                         // Display a CupertinoDatePicker in date picker mode.
                         onPressed: () => _showDialog(
                           CupertinoDatePicker(
-                            initialDateTime: tt,
+                            initialDateTime: date,
                             mode: CupertinoDatePickerMode.date,
                             use24hFormat: true,
                             // This is called when the user changes the date.
                             onDateTimeChanged: (DateTime newDate) {
-                              setState(() => tt = newDate);
+                              setState(() => date = newDate);
                             },
                           ),
                         ),
                         // In this example, the date value is formatted manually. You can use intl package
                         // to format the value based on user's locale settings.
                         child: Text(
-                          '${tt.day}-${tt.month}-${tt.year}',
+                          '${date.day}-${date.month}-${date.year}',
                           style: const TextStyle(
                             fontSize: 20.0,
                             color: Colors.blue,
@@ -381,7 +381,8 @@ class _EditContactState extends State<EditContact> {
                 ),
               ),
               CupertinoDialogAction(
-                onPressed: () => print("object"),
+                // TODO: implement real data input
+                onPressed: () => addEvent(contact, 'ab', DateTime.now()),
                 isDefaultAction: true,
                 child: const Text('Add Event'),
               ),

@@ -44,6 +44,13 @@ Future<Contact> getContact(id) async {
   }
 }
 
+void addEvent(contact, eventName, eventDate) async {
+  Contact val = await contact;
+  val.events.putIfAbsent(eventName, () => eventDate);
+  val.getRef().update({'events': val.events, 'username': val.getName()}).then(
+      (value) => print('user upd'));
+}
+
 void setDates(contact, contactName, contactEvents) {
   contact.then((value) => value
       .getRef()
