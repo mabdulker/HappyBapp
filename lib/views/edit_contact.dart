@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
 
-// TODO: ability to add and delete tiles
 // TODO: make updates happen in real time
 // TODO: Profile picture
+// TODO: Styling
 
 class EditContact extends StatefulWidget {
   final String docId;
@@ -48,6 +48,10 @@ class _EditContactState extends State<EditContact> {
     return await _events;
   }
 
+  Future<Contact> waitContact() async {
+    return await contact;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +77,7 @@ class _EditContactState extends State<EditContact> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-            child: getEventList(),
+            child: getEventListTest(),
           ),
         ],
       ),
@@ -134,7 +138,51 @@ class _EditContactState extends State<EditContact> {
   // ? Event List: Creates a list of editable tiles
   // * Gets the list of events from firestore
 
+  Widget getEventListTest() {
+    final Stream<DocumentSnapshot> events = FirebaseFirestore.instance
+        .collection('user')
+        .doc(widget.docId)
+        .snapshots();
+    return StreamBuilder<DocumentSnapshot>(
+      stream: events,
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<DocumentSnapshot> snapshot,
+      ) {
+        if (snapshot.hasError) {
+          return const Text('Wrong');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Text('loading');
+        }
+
+        final data = snapshot.data!['events'];
+
+        return ListView.separated(
+          shrinkWrap: true,
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            return Column(
+              children: <Widget>[
+                buildEventTile(
+                  data.keys.toList()[index] ?? 'error',
+                  DateTime.fromMillisecondsSinceEpoch(
+                      data.values.toList()[index].seconds * 1000),
+                ),
+              ],
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) =>
+              const Divider(),
+        );
+      },
+    );
+  }
+
   Widget getEventList() => FutureBuilder<Map<String, dynamic>>(
+      // TODO: make listview read live updates form db
+      // TODO: make listview scrollable with screen
+
       future: waitEvents(),
       builder: (context, ev) {
         return ListView.separated(
@@ -144,7 +192,7 @@ class _EditContactState extends State<EditContact> {
           itemBuilder: (context, index) {
             return Column(
               children: <Widget>[
-                test(
+                buildEventTile(
                   ev.data?.keys.toList()[index] ?? 'error',
                   DateTime.fromMillisecondsSinceEpoch(
                       ev.data?.values.toList()[index].seconds * 1000),
@@ -158,8 +206,9 @@ class _EditContactState extends State<EditContact> {
       });
 
   // * List view tile builder
+  // * Creates an event tile which is used by the ListView builder
 
-  Widget test(eventName, eventDate) {
+  Widget buildEventTile(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
     return Dismissible(
       movementDuration: const Duration(milliseconds: 300),
@@ -188,22 +237,19 @@ class _EditContactState extends State<EditContact> {
     );
   }
 
-  // * Creates an event tile which is used by the ListView builder
-
-  Widget buildEventTile(eventName, eventDate) {
-    dates.putIfAbsent(eventName, () => eventDate);
-    // TODO: figure out the case where the name is changed
-    return _DatePickerItem(
-      children: <Widget>[
-        Expanded(flex: 5, child: eventNameField(eventName, eventDate)),
-        const Icon(
-          Icons.double_arrow_rounded,
-          color: Colors.deepPurpleAccent,
-        ),
-        Expanded(flex: 5, child: datePicker(eventName)),
-      ],
-    );
-  }
+  // Widget buildEventTile(eventName, eventDate) {
+  //   dates.putIfAbsent(eventName, () => eventDate);
+  //   return _DatePickerItem(
+  //     children: <Widget>[
+  //       Expanded(flex: 5, child: eventNameField(eventName, eventDate)),
+  //       const Icon(
+  //         Icons.double_arrow_rounded,
+  //         color: Colors.deepPurpleAccent,
+  //       ),
+  //       Expanded(flex: 5, child: datePicker(eventName)),
+  //     ],
+  //   );
+  // }
 
   // * TextField for editing eventName field of tile
 
@@ -309,7 +355,6 @@ class _EditContactState extends State<EditContact> {
   // * Circle button used to add events to event list
 
   Widget addBtn() => FloatingActionButton(
-        // TODO: add functionality to the add button ( should bring up prompt )
         onPressed: () {
           openDialog();
         },
@@ -320,6 +365,7 @@ class _EditContactState extends State<EditContact> {
 
   // ? for tomorrow - think about separating the picker from build picker, implement add button
   Future openDialog() => showCupertinoDialog(
+      // TODO: dissallow empty input in text field
       context: context,
       barrierDismissible: true,
       builder: (context) {
@@ -452,11 +498,10 @@ class _DatePickerItem extends StatelessWidget {
   }
 }
 
-
 // GARBAGE
 
 // key: Key(eventName),
-      
+
 //       endActionPane: ActionPane(
 //         motion: const ScrollMotion(),
 //         children: [
