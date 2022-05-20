@@ -56,30 +56,32 @@ class _EditContactState extends State<EditContact> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
-            child: contactNameField(),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  header('Events'),
-                  const Spacer(),
-                  addBtn(),
-                ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
+              child: contactNameField(),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    header('Events'),
+                    const Spacer(),
+                    addBtn(),
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-            child: getEventListTest(),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
+              child: getEventListTest(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -160,6 +162,7 @@ class _EditContactState extends State<EditContact> {
 
         return ListView.separated(
           shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: data.length,
           itemBuilder: (context, index) {
             return Column(
@@ -180,7 +183,6 @@ class _EditContactState extends State<EditContact> {
   }
 
   Widget getEventList() => FutureBuilder<Map<String, dynamic>>(
-      // TODO: make listview read live updates form db
       // TODO: make listview scrollable with screen
 
       future: waitEvents(),
