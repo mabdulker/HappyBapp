@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
 
-// TODO: Figure out editing (so that it doesnt bring back old events)
 // TODO: Profile picture
 // TODO: Styling
 
@@ -137,7 +136,6 @@ class _EditContactState extends State<EditContact> {
   // ? Event List: Creates a list of editable tiles
   // * Gets the list of events from firestore
   Widget getEventList() {
-    // TODO: order stream in alphabetical order
     final Stream<DocumentSnapshot> events = FirebaseFirestore.instance
         .collection('user')
         .doc(widget.docId)
@@ -157,7 +155,6 @@ class _EditContactState extends State<EditContact> {
 
         final data = snapshot.data!['events'];
         final keys = data.keys.toList()..sort();
-        final values = data.values.toList()..sort();
 
         return ListView.separated(
           shrinkWrap: true,
@@ -185,11 +182,13 @@ class _EditContactState extends State<EditContact> {
   // * Creates an event tile which is used by the ListView builder
   Widget buildEventTile(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
+    print(dates);
     return Dismissible(
       movementDuration: const Duration(milliseconds: 300),
       direction: DismissDirection.endToStart,
       key: Key(eventName),
       onDismissed: (direction) {
+        dates.remove(eventName);
         deleteEvent(contact, eventName);
       },
       background: Container(
