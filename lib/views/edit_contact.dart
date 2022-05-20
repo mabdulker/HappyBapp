@@ -156,6 +156,8 @@ class _EditContactState extends State<EditContact> {
         }
 
         final data = snapshot.data!['events'];
+        final keys = data.keys.toList()..sort();
+        final values = data.values.toList()..sort();
 
         return ListView.separated(
           shrinkWrap: true,
@@ -165,9 +167,9 @@ class _EditContactState extends State<EditContact> {
             return Column(
               children: <Widget>[
                 buildEventTile(
-                  data.keys.toList()[index] ?? 'error',
+                  keys[index] ?? 'error',
                   DateTime.fromMillisecondsSinceEpoch(
-                      data.values.toList()[index].seconds * 1000),
+                      data[keys[index]].seconds * 1000),
                 ),
               ],
             );
