@@ -47,10 +47,6 @@ class _EditContactState extends State<EditContact> {
     return await _events;
   }
 
-  Future<Contact> waitContact() async {
-    return await contact;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -182,7 +178,6 @@ class _EditContactState extends State<EditContact> {
   // * Creates an event tile which is used by the ListView builder
   Widget buildEventTile(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
-    print(dates);
     return Dismissible(
       movementDuration: const Duration(milliseconds: 300),
       direction: DismissDirection.endToStart,
@@ -319,10 +314,17 @@ class _EditContactState extends State<EditContact> {
         child: const Icon(Icons.add_box, color: Colors.white),
       );
 
+  // * Used to validate user input into text field
+  bool validate(String input) {
+    if (input.length > 1) {
+      return true;
+    }
+    return false;
+  }
+
   // ? for tomorrow - think about separating the picker from build picker, implement add button
-  // Opens a cupertino style dialog which prompts user to input data in order to add event
+  // * Opens a cupertino style dialog which prompts user to input data in order to add event
   Future openDialog() => showCupertinoDialog(
-      // TODO: dissallow empty input in text field
       context: context,
       barrierDismissible: true,
       builder: (context) {
@@ -391,8 +393,13 @@ class _EditContactState extends State<EditContact> {
               ),
               CupertinoDialogAction(
                 onPressed: () {
-                  addEvent(contact, eventName, eventDate);
-                  Navigator.pop(context);
+                  if (validate(eventName)) {
+                    addEvent(contact, eventName, eventDate);
+                    Navigator.pop(context);
+                  } else {
+                    print('wrong input');
+                    // TODO: Add some feedback to provide user with reson for invalid input
+                  }
                 },
                 isDefaultAction: true,
                 child: const Text('Add Event'),
