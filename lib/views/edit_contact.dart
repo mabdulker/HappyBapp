@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:test_flutter/model/contact.dart';
 
-// TODO: make updates happen in real time
+// TODO: Figure out editing (so that it doesnt bring back old events)
 // TODO: Profile picture
 // TODO: Styling
 
@@ -39,7 +39,7 @@ class _EditContactState extends State<EditContact> {
         _events = value.getEvents();
       });
       print(_name);
-      print('Done');
+      print('Init Done');
     });
   }
 
@@ -78,7 +78,7 @@ class _EditContactState extends State<EditContact> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-              child: getEventListTest(),
+              child: getEventList(),
             ),
           ],
         ),
@@ -87,7 +87,6 @@ class _EditContactState extends State<EditContact> {
   }
 
   // * App bar
-
   PreferredSizeWidget buildAppBar() => AppBar(
         //title: Text('${editMode ? 'Edit' : 'View'} Contact'),
         backgroundColor: Colors.deepPurple,
@@ -103,7 +102,6 @@ class _EditContactState extends State<EditContact> {
       );
 
   // * Field for user to enter contact name
-
   Widget contactNameField() => TextFormField(
         autocorrect: false,
         readOnly: !_editMode,
@@ -128,7 +126,6 @@ class _EditContactState extends State<EditContact> {
       );
 
   // * Header style text widget generator
-
   Widget header(String title) => Text(
         title,
         style: const TextStyle(
@@ -139,8 +136,8 @@ class _EditContactState extends State<EditContact> {
 
   // ? Event List: Creates a list of editable tiles
   // * Gets the list of events from firestore
-
-  Widget getEventListTest() {
+  Widget getEventList() {
+    // TODO: order stream in alphabetical order
     final Stream<DocumentSnapshot> events = FirebaseFirestore.instance
         .collection('user')
         .doc(widget.docId)
@@ -182,34 +179,8 @@ class _EditContactState extends State<EditContact> {
     );
   }
 
-  Widget getEventList() => FutureBuilder<Map<String, dynamic>>(
-      // TODO: make listview scrollable with screen
-
-      future: waitEvents(),
-      builder: (context, ev) {
-        return ListView.separated(
-          shrinkWrap: true,
-          padding: const EdgeInsets.symmetric(horizontal: 0.0),
-          itemCount: ev.data?.length ?? 0,
-          itemBuilder: (context, index) {
-            return Column(
-              children: <Widget>[
-                buildEventTile(
-                  ev.data?.keys.toList()[index] ?? 'error',
-                  DateTime.fromMillisecondsSinceEpoch(
-                      ev.data?.values.toList()[index].seconds * 1000),
-                )
-              ],
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) =>
-              const Divider(),
-        );
-      });
-
   // * List view tile builder
   // * Creates an event tile which is used by the ListView builder
-
   Widget buildEventTile(eventName, eventDate) {
     dates.putIfAbsent(eventName, () => eventDate);
     return Dismissible(
@@ -239,22 +210,7 @@ class _EditContactState extends State<EditContact> {
     );
   }
 
-  // Widget buildEventTile(eventName, eventDate) {
-  //   dates.putIfAbsent(eventName, () => eventDate);
-  //   return _DatePickerItem(
-  //     children: <Widget>[
-  //       Expanded(flex: 5, child: eventNameField(eventName, eventDate)),
-  //       const Icon(
-  //         Icons.double_arrow_rounded,
-  //         color: Colors.deepPurpleAccent,
-  //       ),
-  //       Expanded(flex: 5, child: datePicker(eventName)),
-  //     ],
-  //   );
-  // }
-
   // * TextField for editing eventName field of tile
-
   Widget eventNameField(eventName, eventDate) {
     String name = eventName;
     return TextFormField(
@@ -282,7 +238,6 @@ class _EditContactState extends State<EditContact> {
   }
 
   // * Creates a cupertino style picker with ability to edit
-
   Widget datePicker(eventName) => CupertinoButton(
         // Display a CupertinoDatePicker in date picker mode.
         onPressed: !_editMode
@@ -310,7 +265,6 @@ class _EditContactState extends State<EditContact> {
       );
 
   // * Implements funcitonality and visual for the edit button
-
   Widget editBtn() => GestureDetector(
         onTap: () {
           if (_editMode) {
@@ -355,7 +309,6 @@ class _EditContactState extends State<EditContact> {
       );
 
   // * Circle button used to add events to event list
-
   Widget addBtn() => FloatingActionButton(
         onPressed: () {
           openDialog();
@@ -366,6 +319,7 @@ class _EditContactState extends State<EditContact> {
       );
 
   // ? for tomorrow - think about separating the picker from build picker, implement add button
+  // Opens a cupertino style dialog which prompts user to input data in order to add event
   Future openDialog() => showCupertinoDialog(
       // TODO: dissallow empty input in text field
       context: context,
@@ -384,6 +338,7 @@ class _EditContactState extends State<EditContact> {
                       eventName = value;
                     },
                     autocorrect: false,
+                    autofocus: true,
                     placeholder: 'Event Name',
                   ),
                 ),
@@ -499,52 +454,3 @@ class _DatePickerItem extends StatelessWidget {
     );
   }
 }
-
-// GARBAGE
-
-// key: Key(eventName),
-
-//       endActionPane: ActionPane(
-//         motion: const ScrollMotion(),
-//         children: [
-
-//           // Padding(
-//           //   padding: EdgeInsets.symmetric(horizontal: 10),
-//           //   child: FloatingActionButton(
-//           //     onPressed: null,
-//           //     backgroundColor: Colors.red,
-//           //     foregroundColor: Colors.black,
-//           //     child: Icon(
-//           //       Icons.disabled_by_default_rounded,
-//           //       color: Colors.white,
-//           //     ),
-//           //     elevation: 0,
-//           //   ),
-//           // )
-
-//           // CircleAvatar(
-//           //   child: Icon(Icons.delete_outline),
-//           //   backgroundColor: Colors.green,
-//           //   foregroundColor: Colors.black,
-//           //   radius: 35,
-
-//           // ),
-//           CustomSlidableAction(
-//             child: const Text('Delete'),
-//             autoClose: true,
-//             onPressed: ((context) {
-//               dates.removeWhere((key, value) => key == eventName);
-//               user.then((value) => value
-//                   .getRef()
-//                   .set({
-//                     'events': dates,
-//                   })
-//                   .then((value) => print('deleted users'))
-//                   .catchError((error) => print(error)));
-//               print(eventName);
-//               // dates.removeWhere((key, value) => key == eventName);
-//             }),
-//             backgroundColor: Colors.redAccent,
-//           ),
-//         ],
-//         extentRatio: 0.20,
