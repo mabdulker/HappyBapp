@@ -1,12 +1,9 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cupertino_date_textbox/cupertino_date_textbox.dart';
 import 'package:intl/intl.dart';
-
-//import 'package:cupertino_date_textbox/cupertino_date_textbox';
 
 class AddContacts extends StatefulWidget {
   @override
@@ -16,7 +13,7 @@ class AddContacts extends StatefulWidget {
 class _AddContactsState extends State<AddContacts> {
   final double pHeight = 120;
   var name = '';
-  Map<String, DateTime> event = Map();
+  Map<String, DateTime> event = {};
   DateTime _selectedDateTime = DateTime.now();
 
   @override
@@ -30,7 +27,7 @@ class _AddContactsState extends State<AddContacts> {
           backgroundColor: Colors.deepPurple,
           actions: <Widget>[
             Padding(
-              padding: EdgeInsets.only(right: 10.0),
+              padding: const EdgeInsets.only(right: 10.0),
               child: IconButton(
                 onPressed: () {
                   users
@@ -38,7 +35,7 @@ class _AddContactsState extends State<AddContacts> {
                       .then((value) => print('user added'))
                       .catchError((error) => print('error'));
                 },
-                icon: Icon(Icons.edit),
+                icon: const Icon(Icons.edit),
                 tooltip: 'Save Changes',
               ),
             ),
@@ -83,7 +80,7 @@ class _AddContactsState extends State<AddContacts> {
   Widget eventPicker() => Row(
         children: [
           ElevatedButton(
-            child: Text("Select Date"),
+            child: const Text("Select Date"),
             onPressed: () async {
               var datePicked = await DatePicker.showSimpleDatePicker(
                 context,
