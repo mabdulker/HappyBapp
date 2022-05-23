@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:test_flutter/model/contact.dart';
 
 // TODO: Profile picture
 // TODO: Styling
+// TODO: loading screen before going onto edit page
 
 class EditContact extends StatefulWidget {
   final String docId;
@@ -24,7 +26,6 @@ class _EditContactState extends State<EditContact> {
   bool _editMode = false;
   String _name = '';
   Map<String, DateTime> dates = <String, DateTime>{};
-  DateTime time = DateTime.now();
 
   @override
   void initState() {
@@ -55,6 +56,9 @@ class _EditContactState extends State<EditContact> {
         child: Column(
           children: [
             Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                child: profilePicture()),
+            Padding(
               padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
               child: contactNameField(),
             ),
@@ -83,7 +87,6 @@ class _EditContactState extends State<EditContact> {
 
   // * App bar
   PreferredSizeWidget buildAppBar() => AppBar(
-        //title: Text('${editMode ? 'Edit' : 'View'} Contact'),
         backgroundColor: Colors.deepPurple,
         automaticallyImplyLeading: !_editMode,
         actions: <Widget>[
@@ -96,6 +99,14 @@ class _EditContactState extends State<EditContact> {
         ],
       );
 
+  // * Profile picture generator
+  Widget profilePicture() => ProfilePicture(
+        name: _name,
+        radius: 90,
+        fontsize: 60,
+        img: null,
+      );
+
   // * Field for user to enter contact name
   Widget contactNameField() => TextFormField(
         autocorrect: false,
@@ -105,7 +116,6 @@ class _EditContactState extends State<EditContact> {
         key: Key(_name),
         initialValue: _name,
         decoration: const InputDecoration(
-          //icon: Icon(Icons.account_circle_outlined, size: 30),
           hintText: 'Name',
           prefixIcon: Icon(
             Icons.account_circle_outlined,
