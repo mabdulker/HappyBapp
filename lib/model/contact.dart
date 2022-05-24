@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:test_flutter/model/events.dart';
 
 late var contacts = FirebaseFirestore.instance.collection('user');
 
@@ -40,6 +39,7 @@ Future<Contact> getContact(id) async {
       return Contact(id, data['username'], {});
     }
   } else {
+    print('object');
     throw ('Contact does not exist');
   }
 }

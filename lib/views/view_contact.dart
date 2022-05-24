@@ -57,12 +57,16 @@ class _EditContactState extends State<EditContact> {
         child: Column(
           children: [
             Padding(
-                padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                child: profilePicture()),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
-              child: contactNameFieldtest(),
+              padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
+              child: displayProfile(),
             ),
+            // Padding(
+            //     padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+            //     child: profilePicture()),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
+            //   child: nameField(),
+            // ),
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
               child: Align(
@@ -85,6 +89,26 @@ class _EditContactState extends State<EditContact> {
       ),
     );
   }
+
+  Widget displayProfile() {
+    return Column(
+      children: [
+        profilePicture(),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: nameField(),
+        )
+      ],
+    );
+  }
+
+  Widget nameField() => Text(
+        _name,
+        style: const TextStyle(
+          // fontWeight: FontWeight.bold,
+          fontSize: 40,
+        ),
+      );
 
   // * App bar
   PreferredSizeWidget buildAppBar() => AppBar(

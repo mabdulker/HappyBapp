@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_flutter/views/add_contact.dart';
+import 'add_contact.dart';
 import 'package:test_flutter/views/edit_contact.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
