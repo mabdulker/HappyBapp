@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'add_contact.dart';
-import 'package:test_flutter/views/edit_contact.dart';
+import 'package:test_flutter/views/view_contact.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Contacts extends StatefulWidget {

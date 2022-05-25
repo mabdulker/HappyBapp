@@ -52,41 +52,49 @@ class _EditContactState extends State<EditContact> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
-              child: displayProfile(),
-            ),
-            // Padding(
-            //     padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-            //     child: profilePicture()),
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
-            //   child: nameField(),
-            // ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  children: [
-                    header('Events'),
-                    const Spacer(),
-                    addBtn(),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-              child: getEventList(),
-            ),
-          ],
-        ),
+      // appBar: AppBar(title: Text('hello'),),
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          const SliverAppBar(
+            title: Text('hell'),
+          ),
+        ],
+        body: const Text('ha'),
       ),
+      // body: SingleChildScrollView(
+      //   child: Column(
+      //     children: [
+      //       Padding(
+      //         padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
+      //         child: displayProfile(),
+      //       ),
+      //       // Padding(
+      //       //     padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+      //       //     child: profilePicture()),
+      //       // Padding(
+      //       //   padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
+      //       //   child: nameField(),
+      //       // ),
+      //       Padding(
+      //         padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
+      //         child: Align(
+      //           alignment: Alignment.centerLeft,
+      //           child: Row(
+      //             children: [
+      //               header('Events'),
+      //               const Spacer(),
+      //               addBtn(),
+      //             ],
+      //           ),
+      //         ),
+      //       ),
+      //       Padding(
+      //         padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
+      //         child: getEventList(),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 
@@ -106,13 +114,15 @@ class _EditContactState extends State<EditContact> {
         _name,
         style: const TextStyle(
           // fontWeight: FontWeight.bold,
-          fontSize: 40,
+          fontSize: 35,
         ),
       );
 
   // * App bar
   PreferredSizeWidget buildAppBar() => AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.white,
+        title: displayProfile(),
+        elevation: 0,
         automaticallyImplyLeading: !_editMode,
         actions: <Widget>[
           Padding(
@@ -127,7 +137,7 @@ class _EditContactState extends State<EditContact> {
   // * Profile picture generator
   Widget profilePicture() => ProfilePicture(
         name: _name,
-        radius: 90,
+        radius: 80,
         fontsize: 60,
         img: null,
       );
@@ -146,16 +156,17 @@ class _EditContactState extends State<EditContact> {
         controller: gg,
         placeholder: 'Name',
         decoration: BoxDecoration(
-          color: const Color.fromARGB(18, 98, 97, 97),
-          borderRadius: BorderRadius.circular(10),
-          // prefixIcon: Icon(
-          //   Icons.account_circle_outlined,
-          //   size: 30,
-          //   color: Colors.blueGrey,
-          // ),
-          // fillColor: Colors.white,
-          // filled: false,
-        ),
+            color: const Color.fromARGB(18, 98, 97, 97),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.black)
+            // prefixIcon: Icon(
+            //   Icons.account_circle_outlined,
+            //   size: 30,
+            //   color: Colors.blueGrey,
+            // ),
+            // fillColor: Colors.white,
+            // filled: false,
+            ),
         onChanged: (value) {
           _name = value;
         },
