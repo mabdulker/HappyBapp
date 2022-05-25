@@ -124,13 +124,6 @@ class _EditContactState extends State<EditContact> {
         decoration: BoxDecoration(
           color: const Color.fromARGB(18, 98, 97, 97),
           borderRadius: BorderRadius.circular(10),
-          // prefixIcon: Icon(
-          //   Icons.account_circle_outlined,
-          //   size: 30,
-          //   color: Colors.blueGrey,
-          // ),
-          // fillColor: Colors.white,
-          // filled: false,
         ),
         onChanged: (value) {
           _name = value;
