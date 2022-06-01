@@ -101,7 +101,7 @@ class _ContactListState extends State<ContactList> {
                 textColor: Colors.black,
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) {
-                    return EditContact(
+                    return ViewContact(
                       docId: data.docs[index].id,
                     );
                   }));

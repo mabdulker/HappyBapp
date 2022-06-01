@@ -9,19 +9,19 @@ import 'package:test_flutter/model/contact.dart';
 // TODO: Styling
 // TODO: loading screen before going onto edit page
 
-class EditContact extends StatefulWidget {
+class ViewContact extends StatefulWidget {
   final String docId;
 
-  const EditContact({
+  const ViewContact({
     Key? key,
     this.docId = '',
   }) : super(key: key);
 
   @override
-  _EditContactState createState() => _EditContactState();
+  _ViewContactState createState() => _ViewContactState();
 }
 
-class _EditContactState extends State<EditContact> {
+class _ViewContactState extends State<ViewContact> {
   late Future<Contact> contact;
   late Future<Map<String, dynamic>> _events;
   bool _editMode = false;
@@ -55,46 +55,45 @@ class _EditContactState extends State<EditContact> {
       // appBar: AppBar(title: Text('hello'),),
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          const SliverAppBar(
-            title: Text('hell'),
+          SliverAppBar(
+            expandedHeight: 150,
+            collapsedHeight: 100,
+            flexibleSpace: FlexibleSpaceBar(title: Text(_name)),
+            pinned: true,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  child: editBtn(),
+                ),
+              ),
+            ],
           ),
         ],
-        body: const Text('ha'),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      header('Events'),
+                      const Spacer(),
+                      addBtn(),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
+                child: getEventList(),
+              ),
+            ],
+          ),
+        ),
       ),
-      // body: SingleChildScrollView(
-      //   child: Column(
-      //     children: [
-      //       Padding(
-      //         padding: const EdgeInsets.fromLTRB(0, 30, 0, 30),
-      //         child: displayProfile(),
-      //       ),
-      //       // Padding(
-      //       //     padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-      //       //     child: profilePicture()),
-      //       // Padding(
-      //       //   padding: const EdgeInsets.fromLTRB(0, 50, 0, 30),
-      //       //   child: nameField(),
-      //       // ),
-      //       Padding(
-      //         padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
-      //         child: Align(
-      //           alignment: Alignment.centerLeft,
-      //           child: Row(
-      //             children: [
-      //               header('Events'),
-      //               const Spacer(),
-      //               addBtn(),
-      //             ],
-      //           ),
-      //         ),
-      //       ),
-      //       Padding(
-      //         padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-      //         child: getEventList(),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 
@@ -137,8 +136,8 @@ class _EditContactState extends State<EditContact> {
   // * Profile picture generator
   Widget profilePicture() => ProfilePicture(
         name: _name,
-        radius: 80,
-        fontsize: 60,
+        radius: 20,
+        fontsize: 20,
         img: null,
       );
 
