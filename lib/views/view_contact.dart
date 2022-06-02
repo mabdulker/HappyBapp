@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:test_flutter/model/contact.dart';
 
-// TODO: Profile picture
 // TODO: Create view contact page and separate it from edit contact
 // TODO: Styling
 // TODO: loading screen before going onto edit page

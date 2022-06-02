@@ -122,17 +122,9 @@ class _EditContactState extends State<EditContact> {
         controller: gg,
         placeholder: 'Name',
         decoration: BoxDecoration(
-            color: const Color.fromARGB(18, 98, 97, 97),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.black, width: 0.1)
-            // prefixIcon: Icon(
-            //   Icons.account_circle_outlined,
-            //   size: 30,
-            //   color: Colors.blueGrey,
-            // ),
-            // fillColor: Colors.white,
-            // filled: false,
-            ),
+          color: const Color.fromARGB(18, 98, 97, 97),
+          borderRadius: BorderRadius.circular(10),
+        ),
         onChanged: (value) {
           _name = value;
         },
