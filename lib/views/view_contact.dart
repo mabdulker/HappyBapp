@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:test_flutter/model/contact.dart';
+import 'package:test_flutter/views/edit_contact.dart';
+import 'package:intl/intl.dart';
 
-// TODO: Create view contact page and separate it from edit contact
-// TODO: Styling
-// TODO: loading screen before going onto edit page
+// TODO: make SliverAppBar display image and text
+// TODO: display list of events without giving the ability to delete
 
 class ViewContact extends StatefulWidget {
   final String docId;
@@ -23,7 +24,7 @@ class ViewContact extends StatefulWidget {
 class _ViewContactState extends State<ViewContact> {
   late Future<Contact> contact;
   late Future<Map<String, dynamic>> _events;
-  bool _editMode = false;
+  final bool _editMode = false;
   String _name = '';
   Map<String, DateTime> dates = <String, DateTime>{};
 
@@ -51,17 +52,38 @@ class _ViewContactState extends State<ViewContact> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: Text('hello'),),
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
-            expandedHeight: 150,
-            collapsedHeight: 100,
-            flexibleSpace: FlexibleSpaceBar(title: Text(_name)),
             pinned: true,
+            expandedHeight: 110,
+            collapsedHeight: 80,
+            // bottom: PreferredSize(
+            //   preferredSize: const Size.fromHeight(20),
+            //   child: Container(
+            //     padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+            //     child: Text(
+            //       _name,
+            //       style: const TextStyle(
+            //         color: Colors.amber,
+            //         fontSize: 15,
+            //       ),
+            //     ),
+            //   ),
+            // ),
+            flexibleSpace: FlexibleSpaceBar(
+              // title: Column(children: [const Text('hello'), Text(_name)]),
+              // title: ListView(
+              //   children: const [
+              //     Text('hel'),
+              //     Text('jakjf'),
+              //   ],
+              // ),
+              title: profilePicture(),
+            ),
             actions: [
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(0.0),
                 child: Container(
                   child: editBtn(),
                 ),
@@ -96,17 +118,37 @@ class _ViewContactState extends State<ViewContact> {
     );
   }
 
-  Widget displayProfile() {
-    return Column(
-      children: [
-        profilePicture(),
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: nameField(),
-        )
-      ],
-    );
-  }
+  Widget editBtn() => GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) {
+                return EditContact(docId: widget.docId);
+              },
+            ),
+          );
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 10,
+          width: 80,
+          child: const Center(
+            child: Text(
+              'Edit',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ),
+      );
+
+  // * Profile name and picture
+  Widget profile() => Column(
+        children: [
+          profilePicture(),
+          Text(_name),
+        ],
+      );
 
   Widget nameField() => Text(
         _name,
@@ -116,83 +158,12 @@ class _ViewContactState extends State<ViewContact> {
         ),
       );
 
-  // * App bar
-  PreferredSizeWidget buildAppBar() => AppBar(
-        backgroundColor: Colors.white,
-        title: displayProfile(),
-        elevation: 0,
-        automaticallyImplyLeading: !_editMode,
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              child: editBtn(),
-            ),
-          ),
-        ],
-      );
-
   // * Profile picture generator
   Widget profilePicture() => ProfilePicture(
         name: _name,
-        radius: 20,
+        radius: 25,
         fontsize: 20,
         img: null,
-      );
-
-  // * Field for user to enter contact name
-  Widget contactNameFieldtest() {
-    TextEditingController gg = TextEditingController(text: _name);
-    return Container(
-      padding: const EdgeInsets.all(8),
-      child: CupertinoTextField(
-        autocorrect: false,
-        readOnly: !_editMode,
-        enabled: _editMode,
-        // Text Field
-        key: Key(_name),
-        controller: gg,
-        placeholder: 'Name',
-        decoration: BoxDecoration(
-            color: const Color.fromARGB(18, 98, 97, 97),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.black)
-            // prefixIcon: Icon(
-            //   Icons.account_circle_outlined,
-            //   size: 30,
-            //   color: Colors.blueGrey,
-            // ),
-            // fillColor: Colors.white,
-            // filled: false,
-            ),
-        onChanged: (value) {
-          _name = value;
-        },
-      ),
-    );
-  }
-
-  // * Field for user to enter contact name
-  Widget contactNameField() => TextFormField(
-        autocorrect: false,
-        readOnly: !_editMode,
-        enabled: _editMode,
-        // Text Field
-        key: Key(_name),
-        initialValue: _name,
-        decoration: const InputDecoration(
-          hintText: 'Name',
-          prefixIcon: Icon(
-            Icons.account_circle_outlined,
-            size: 30,
-            color: Colors.blueGrey,
-          ),
-          fillColor: Colors.white,
-          filled: false,
-        ),
-        onChanged: (value) {
-          _name = value;
-        },
       );
 
   // * Header style text widget generator
@@ -252,7 +223,7 @@ class _ViewContactState extends State<ViewContact> {
   // * List view tile builder
   // * Creates an event tile which is used by the ListView builder
   Widget buildEventTile(eventName, eventDate) {
-    dates.putIfAbsent(eventName, () => eventDate);
+    String formatDate = DateFormat('dd-MM-yyyy').format(eventDate);
     return Dismissible(
       movementDuration: const Duration(milliseconds: 300),
       direction: DismissDirection.endToStart,
@@ -270,40 +241,19 @@ class _ViewContactState extends State<ViewContact> {
       ),
       child: _DatePickerItem(
         children: <Widget>[
-          Expanded(flex: 5, child: eventNameField(eventName, eventDate)),
+          Expanded(
+            flex: 5,
+            child: Text(
+              eventName,
+              style: const TextStyle(fontSize: 20),
+            ),
+          ),
           const Icon(
             Icons.double_arrow_rounded,
             color: Colors.deepPurple,
           ),
-          Expanded(flex: 5, child: datePicker(eventName)),
+          Expanded(flex: 5, child: Text(formatDate)),
         ],
-      ),
-    );
-  }
-
-  // * TextField for editing eventName field of tile
-  Widget eventNameField(eventName, eventDate) {
-    String name = eventName;
-    return TextFormField(
-      // Edit Mode
-      autocorrect: false,
-      readOnly: !_editMode,
-      enabled: _editMode,
-      // Initial Value
-      initialValue: eventName,
-      // When user changes value name
-      onChanged: (value) {
-        dates.removeWhere((key, value) => key == name);
-        dates.putIfAbsent(value, () => eventDate);
-        name = value;
-      },
-      // Styling
-      style: const TextStyle(fontSize: 20),
-      decoration: const InputDecoration(
-        border: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        contentPadding: EdgeInsets.all(10),
       ),
     );
   }
@@ -331,50 +281,6 @@ class _ViewContactState extends State<ViewContact> {
           style: TextStyle(
             fontSize: 22.0,
             color: !_editMode ? Colors.black : Colors.blue,
-          ),
-        ),
-      );
-
-  // * Implements funcitonality and visual for the edit button
-  Widget editBtn() => GestureDetector(
-        onTap: () {
-          if (_editMode) {
-            setDates(contact, _name, dates);
-          }
-          setState(() {
-            _editMode = !_editMode;
-          });
-        },
-        // Neumorphism implementation
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 10,
-          width: 80,
-          child: Center(
-            child: Text(
-              _editMode ? 'Done' : 'Edit',
-              style: const TextStyle(fontSize: 20),
-            ),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.deepPurple[500],
-            borderRadius: BorderRadius.circular(50),
-            boxShadow: _editMode
-                ? [
-                    BoxShadow(
-                      color: Colors.deepPurple[600]!,
-                      offset: const Offset(4, 4),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                    ),
-                    BoxShadow(
-                      color: Colors.deepPurple[400]!,
-                      offset: const Offset(-4, -4),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
           ),
         ),
       );
@@ -473,7 +379,6 @@ class _ViewContactState extends State<ViewContact> {
                     Navigator.pop(context);
                   } else {
                     print('wrong input');
-                    // TODO: Add some feedback to provide user with reson for invalid input
                   }
                 },
                 isDefaultAction: true,
