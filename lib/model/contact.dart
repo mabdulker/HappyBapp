@@ -64,8 +64,18 @@ void setDates(contact, contactName, contactEvents) {
       .getRef()
       .set({
         'username': contactName,
-        'events': contactEvents,
+        'events': contactEvents ?? {},
       })
       .then((value) => print('user updated'))
       .catchError((error) => print(error)));
+}
+
+Future<String> newContact() {
+  return contacts
+      .add({
+        'username': '',
+        'events': {},
+      })
+      .then((value) => value.id)
+      .catchError((error) => print(error));
 }

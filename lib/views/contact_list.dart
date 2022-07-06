@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'add_contact.dart';
 import 'package:test_flutter/views/view_contact.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:test_flutter/views/edit_contact.dart';
 
 class Contacts extends StatefulWidget {
   const Contacts({Key? key}) : super(key: key);
@@ -23,7 +23,7 @@ class _ContactsState extends State<Contacts> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (_) {
-            return AddContacts();
+            return const EditContact(docId: "");
           }));
         },
         child: const Icon(

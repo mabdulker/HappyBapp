@@ -23,16 +23,27 @@ class EditContact extends StatefulWidget {
 
 class _EditContactState extends State<EditContact> {
   late Future<Contact> contact;
-  late Future<Map<String, dynamic>> _events;
-  bool _editMode = false;
+  late Future<Map<String, dynamic>>? _events;
+  final bool _editMode = true;
+  String documentID = '';
   String _name = '';
   Map<String, DateTime> dates = <String, DateTime>{};
 
   @override
   void initState() {
     super.initState();
+    if (widget.docId == "") {
+      newContact().then((String d) {
+        setState(() {
+          documentID = d;
+        });
+      });
+    } else {
+      documentID = widget.docId;
+    }
+
     setState(() {
-      contact = getContact(widget.docId);
+      contact = getContact(documentID);
     });
     contact.then((value) {
       setState(() {
@@ -45,7 +56,7 @@ class _EditContactState extends State<EditContact> {
   }
 
   // ? Gets rid of red screen of death in transitions between screens
-  Future<Map<String, dynamic>> waitEvents() async {
+  Future<Map<String, dynamic>?> waitEvents() async {
     return await _events;
   }
 
@@ -89,7 +100,6 @@ class _EditContactState extends State<EditContact> {
   // * App bar
   PreferredSizeWidget buildAppBar() => AppBar(
         backgroundColor: Colors.deepPurple,
-        automaticallyImplyLeading: !_editMode,
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.all(10.0),
@@ -115,8 +125,6 @@ class _EditContactState extends State<EditContact> {
       padding: const EdgeInsets.all(8),
       child: CupertinoTextField(
         autocorrect: false,
-        readOnly: !_editMode,
-        enabled: _editMode,
         // Text Field
         key: Key(_name),
         controller: gg,
@@ -135,8 +143,6 @@ class _EditContactState extends State<EditContact> {
   // * Field for user to enter contact name
   Widget contactNameField() => TextFormField(
         autocorrect: false,
-        readOnly: !_editMode,
-        enabled: _editMode,
         // Text Field
         key: Key(_name),
         initialValue: _name,
@@ -167,9 +173,9 @@ class _EditContactState extends State<EditContact> {
   // ? Event List: Creates a list of editable tiles
   // * Gets the list of events from firestore
   Widget getEventList() {
-    final Stream<DocumentSnapshot> events = FirebaseFirestore.instance
+    final Stream<DocumentSnapshot>? events = FirebaseFirestore.instance
         .collection('user')
-        .doc(widget.docId)
+        .doc(documentID)
         .snapshots();
     return StreamBuilder<DocumentSnapshot>(
       stream: events,
@@ -247,8 +253,6 @@ class _EditContactState extends State<EditContact> {
     return TextFormField(
       // Edit Mode
       autocorrect: false,
-      readOnly: !_editMode,
-      enabled: _editMode,
       // Initial Value
       initialValue: eventName,
       // When user changes value name
@@ -258,7 +262,7 @@ class _EditContactState extends State<EditContact> {
         name = value;
       },
       // Styling
-      style: const TextStyle(fontSize: 20),
+      style: const TextStyle(fontSize: 20, color: Colors.blue),
       decoration: const InputDecoration(
         border: InputBorder.none,
         enabledBorder: InputBorder.none,
@@ -271,26 +275,24 @@ class _EditContactState extends State<EditContact> {
   // * Creates a cupertino style picker with ability to edit
   Widget datePicker(eventName) => CupertinoButton(
         // Display a CupertinoDatePicker in date picker mode.
-        onPressed: !_editMode
-            ? null
-            : () => _showDialog(
-                  CupertinoDatePicker(
-                    initialDateTime: dates[eventName],
-                    mode: CupertinoDatePickerMode.date,
-                    use24hFormat: true,
-                    // This is called when the user changes the date.
-                    onDateTimeChanged: (DateTime newDate) {
-                      setState(() => dates[eventName] = newDate);
-                    },
-                  ),
-                ),
+        onPressed: () => _showDialog(
+          CupertinoDatePicker(
+            initialDateTime: dates[eventName],
+            mode: CupertinoDatePickerMode.date,
+            use24hFormat: true,
+            // This is called when the user changes the date.
+            onDateTimeChanged: (DateTime newDate) {
+              setState(() => dates[eventName] = newDate);
+            },
+          ),
+        ),
         // In this example, the date value is formatted manually. You can use intl package
         // to format the value based on user's locale settings.
         child: Text(
           '${dates[eventName]!.day}-${dates[eventName]!.month}-${dates[eventName]!.year}',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 22.0,
-            color: !_editMode ? Colors.black : Colors.blue,
+            color: Colors.blue,
           ),
         ),
       );
@@ -298,22 +300,17 @@ class _EditContactState extends State<EditContact> {
   // * Implements funcitonality and visual for the edit button
   Widget editBtn() => GestureDetector(
         onTap: () {
-          if (_editMode) {
-            setDates(contact, _name, dates);
-          }
-          setState(() {
-            _editMode = !_editMode;
-          });
+          setDates(contact, _name, dates);
         },
         // Neumorphism implementation
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           height: 10,
           width: 80,
-          child: Center(
+          child: const Center(
             child: Text(
-              _editMode ? 'Done' : 'Edit',
-              style: const TextStyle(fontSize: 20),
+              'Save',
+              style: TextStyle(fontSize: 20),
             ),
           ),
           decoration: BoxDecoration(
