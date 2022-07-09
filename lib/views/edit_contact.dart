@@ -318,6 +318,7 @@ class _EditContactState extends State<EditContact> {
           _isNewContact
               ? addNewContact(_name, dates)
               : setDates(contact, _name, dates);
+          Navigator.pop(context);
         },
         child: Container(
           padding: const EdgeInsets.all(8),

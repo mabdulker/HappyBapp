@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:test_flutter/model/contact.dart';
-import 'package:test_flutter/views/contact_list.dart';
 import 'package:test_flutter/views/edit_contact.dart';
 import 'package:intl/intl.dart';
 
@@ -140,10 +139,7 @@ class _ViewContactState extends State<ViewContact> {
                   onPressed: () {
                     deleteContact(contact);
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Contacts()),
-                    );
+                    Navigator.pop(context);
                   },
                 ),
               ],
@@ -253,7 +249,7 @@ class _ViewContactState extends State<ViewContact> {
                 buildEventTile(
                   keys[index] ?? 'error',
                   DateTime.fromMillisecondsSinceEpoch(
-                      data[keys[index]].seconds * 1000),
+                      data[keys[index]]!.seconds * 1000),
                 ),
               ],
             );
