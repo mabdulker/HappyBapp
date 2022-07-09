@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:test_flutter/model/contact.dart';
+import 'package:test_flutter/views/contact_list.dart';
 import 'package:test_flutter/views/edit_contact.dart';
 import 'package:intl/intl.dart';
 
@@ -111,12 +112,56 @@ class _ViewContactState extends State<ViewContact> {
                 padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
                 child: getEventList(),
               ),
+              Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+                  child: Container(child: deleteBtn())),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget deleteBtn() => GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Delete Contact'),
+              content:
+                  const Text('Are you sure you want to delete this contact?'),
+              actions: [
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                TextButton(
+                  child: const Text('Delete'),
+                  onPressed: () {
+                    deleteContact(contact);
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Contacts()),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 20,
+          width: 100,
+          child: const Center(
+            child: Text(
+              'Delete',
+              style: TextStyle(fontSize: 20, color: Colors.red),
+            ),
+          ),
+        ),
+      );
 
   Widget editBtn() => GestureDetector(
         onTap: () {

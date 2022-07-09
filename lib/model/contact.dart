@@ -87,6 +87,10 @@ addNewContact(username, events) {
   });
 }
 
+deleteContact(contact) {
+  contact.then((value) => value.getRef().delete());
+}
+
 Stream<DocumentSnapshot> getEventStream(docId) {
   return contacts.doc(docId).snapshots();
 }

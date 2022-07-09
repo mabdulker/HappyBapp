@@ -24,9 +24,7 @@ class EditContact extends StatefulWidget {
 class _EditContactState extends State<EditContact> {
   late Future<Contact> contact;
   late Future<Map<String, dynamic>>? _events;
-  final bool _editMode = true;
   bool _isNewContact = true;
-  String documentID = '';
   String _name = '';
   Map<String, DateTime> dates = <String, DateTime>{};
 
@@ -34,17 +32,11 @@ class _EditContactState extends State<EditContact> {
   void initState() {
     super.initState();
     if (widget.docId != "") {
-      // newContact().then((String d) {
-      //   setState(() {
-      //     documentID = d;
-      //   });
-      // });
       setState(() {
         _isNewContact = false;
       });
-      documentID = widget.docId;
       setState(() {
-        contact = getContact(documentID);
+        contact = getContact(widget.docId);
       });
       contact.then((value) {
         setState(() {
@@ -55,15 +47,13 @@ class _EditContactState extends State<EditContact> {
         print(_name);
         print('Init Done');
       });
-    } else {
-      print('we made it');
     }
   }
 
-  // ? Gets rid of red screen of death in transitions between screens
-  Future<Map<String, dynamic>?> waitEvents() async {
-    return await _events;
-  }
+  // // ? Gets rid of red screen of death in transitions between screens
+  // Future<Map<String, dynamic>?> waitEvents() async {
+  //   return await _events;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +84,7 @@ class _EditContactState extends State<EditContact> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-              child: _isNewContact ? buildEventList() : getEventList(),
+              child: _isNewContact ? localEventList() : remoteEventList(),
             ),
           ],
         ),
@@ -175,7 +165,7 @@ class _EditContactState extends State<EditContact> {
         ),
       );
 
-  Widget buildEventList() {
+  Widget localEventList() {
     final keys = dates.keys.toList()..sort();
     return ListView.separated(
       shrinkWrap: true,
@@ -194,8 +184,8 @@ class _EditContactState extends State<EditContact> {
 
   // ? Event List: Creates a list of editable tiles
   // * Gets the list of events from firestore
-  Widget getEventList() {
-    Stream<DocumentSnapshot> events = getEventStream(documentID);
+  Widget remoteEventList() {
+    Stream<DocumentSnapshot> events = getEventStream(widget.docId);
     return StreamBuilder<DocumentSnapshot>(
       stream: events,
       builder: (
