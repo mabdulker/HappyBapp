@@ -25,6 +25,7 @@ class _EditContactState extends State<EditContact> {
   late Future<Contact> contact;
   late Future<Map<String, dynamic>>? _events;
   final bool _editMode = true;
+  bool _isNewContact = true;
   String documentID = '';
   String _name = '';
   Map<String, DateTime> dates = <String, DateTime>{};
@@ -32,27 +33,31 @@ class _EditContactState extends State<EditContact> {
   @override
   void initState() {
     super.initState();
-    if (widget.docId == "") {
-      newContact().then((String d) {
+    if (widget.docId != "") {
+      // newContact().then((String d) {
+      //   setState(() {
+      //     documentID = d;
+      //   });
+      // });
+      setState(() {
+        _isNewContact = false;
+      });
+      documentID = widget.docId;
+      setState(() {
+        contact = getContact(documentID);
+      });
+      contact.then((value) {
         setState(() {
-          documentID = d;
+          _name = value.getName();
+          _events = value.getEvents();
+          print(_events);
         });
+        print(_name);
+        print('Init Done');
       });
     } else {
-      documentID = widget.docId;
+      print('we made it');
     }
-
-    setState(() {
-      contact = getContact(documentID);
-    });
-    contact.then((value) {
-      setState(() {
-        _name = value.getName();
-        _events = value.getEvents();
-      });
-      print(_name);
-      print('Init Done');
-    });
   }
 
   // ? Gets rid of red screen of death in transitions between screens
@@ -89,7 +94,7 @@ class _EditContactState extends State<EditContact> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 20, 0, 50),
-              child: getEventList(),
+              child: _isNewContact ? buildEventList() : getEventList(),
             ),
           ],
         ),
@@ -170,13 +175,27 @@ class _EditContactState extends State<EditContact> {
         ),
       );
 
+  Widget buildEventList() {
+    final keys = dates.keys.toList()..sort();
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: dates.length,
+      itemBuilder: (context, index) {
+        return Column(
+          children: <Widget>[
+            buildEventTile(keys[index], dates[keys[index]]!),
+          ],
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => const Divider(),
+    );
+  }
+
   // ? Event List: Creates a list of editable tiles
   // * Gets the list of events from firestore
   Widget getEventList() {
-    final Stream<DocumentSnapshot>? events = FirebaseFirestore.instance
-        .collection('user')
-        .doc(documentID)
-        .snapshots();
+    Stream<DocumentSnapshot> events = getEventStream(documentID);
     return StreamBuilder<DocumentSnapshot>(
       stream: events,
       builder: (
@@ -213,6 +232,12 @@ class _EditContactState extends State<EditContact> {
         );
       },
     );
+  }
+
+  deleteLocalEvent(eventName) {
+    setState(() {
+      dates.remove(eventName);
+    });
   }
 
   // * List view tile builder
@@ -300,40 +325,50 @@ class _EditContactState extends State<EditContact> {
   // * Implements funcitonality and visual for the edit button
   Widget editBtn() => GestureDetector(
         onTap: () {
-          setDates(contact, _name, dates);
+          _isNewContact
+              ? addNewContact(_name, dates)
+              : setDates(contact, _name, dates);
         },
-        // Neumorphism implementation
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 10,
-          width: 80,
-          child: const Center(
-            child: Text(
-              'Save',
-              style: TextStyle(fontSize: 20),
-            ),
-          ),
-          decoration: BoxDecoration(
-            color: Colors.deepPurple[500],
-            borderRadius: BorderRadius.circular(50),
-            boxShadow: _editMode
-                ? [
-                    BoxShadow(
-                      color: Colors.deepPurple[600]!,
-                      offset: const Offset(4, 4),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                    ),
-                    BoxShadow(
-                      color: Colors.deepPurple[400]!,
-                      offset: const Offset(-4, -4),
-                      blurRadius: 15,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : null,
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          child: const Icon(
+            Icons.edit,
+            size: 30,
+            color: Colors.blueGrey,
           ),
         ),
+        // // Neumorphism implementation
+        // child: AnimatedContainer(
+        //   duration: const Duration(milliseconds: 200),
+        //   height: 10,
+        //   width: 80,
+        //   child: const Center(
+        //     child: Text(
+        //       'Save',
+        //       style: TextStyle(fontSize: 20),
+        //     ),
+        //   ),
+        //   decoration: BoxDecoration(
+        //     color: Colors.deepPurple[500],
+        //     borderRadius: BorderRadius.circular(50),
+        //     boxShadow: _editMode
+        //         ? [
+        //             BoxShadow(
+        //               color: Colors.deepPurple[600]!,
+        //               offset: const Offset(4, 4),
+        //               blurRadius: 15,
+        //               spreadRadius: 1,
+        //             ),
+        //             BoxShadow(
+        //               color: Colors.deepPurple[400]!,
+        //               offset: const Offset(-4, -4),
+        //               blurRadius: 15,
+        //               spreadRadius: 1,
+        //             ),
+        //           ]
+        //         : null,
+        //   ),
+        // ),
       );
 
   // * Circle button used to add events to event list
@@ -426,7 +461,10 @@ class _EditContactState extends State<EditContact> {
               CupertinoDialogAction(
                 onPressed: () {
                   if (validate(eventName)) {
-                    addEvent(contact, eventName, eventDate);
+                    _isNewContact
+                        ? addDate(eventName, eventDate)
+                        : addEvent(contact, eventName, eventDate);
+                    print(dates);
                     Navigator.pop(context);
                   } else {
                     print('wrong input');
@@ -440,6 +478,12 @@ class _EditContactState extends State<EditContact> {
           );
         });
       });
+
+  addDate(eventName, eventDate) {
+    setState(() {
+      dates[eventName] = eventDate;
+    });
+  }
 
   // * This shows a CupertinoModalPopup with a reasonable fixed height which hosts CupertinoDatePicker (styling for CDP)
 

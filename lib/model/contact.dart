@@ -79,3 +79,14 @@ Future<String> newContact() {
       .then((value) => value.id)
       .catchError((error) => print(error));
 }
+
+addNewContact(username, events) {
+  contacts.add({
+    'username': username,
+    'events': events,
+  });
+}
+
+Stream<DocumentSnapshot> getEventStream(docId) {
+  return contacts.doc(docId).snapshots();
+}
