@@ -219,10 +219,7 @@ class _ViewContactState extends State<ViewContact> {
   // ? Event List: Creates a list of editable tiles
   // * Gets the list of events from firestore
   Widget getEventList() {
-    final Stream<DocumentSnapshot> events = FirebaseFirestore.instance
-        .collection('user')
-        .doc(widget.docId)
-        .snapshots();
+    final Stream<DocumentSnapshot> events = getEventStream(widget.docId);
     return StreamBuilder<DocumentSnapshot>(
       stream: events,
       builder: (
@@ -232,31 +229,33 @@ class _ViewContactState extends State<ViewContact> {
         if (snapshot.hasError) {
           return const Text('Wrong');
         }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Text('loading');
+        // if (snapshot.connectionState == ConnectionState.waiting) {
+        //   return const Text('loading');
+        // }
+        if (snapshot.hasData) {
+          final data = snapshot.data!['events'];
+          final keys = data.keys.toList()..sort();
+
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              return Column(
+                children: <Widget>[
+                  buildEventTile(
+                    keys[index] ?? 'error',
+                    DateTime.fromMillisecondsSinceEpoch(
+                        data[keys[index]]!.seconds * 1000),
+                  ),
+                ],
+              );
+            },
+            separatorBuilder: (BuildContext context, int index) =>
+                const Divider(),
+          );
         }
-
-        final data = snapshot.data!['events'];
-        final keys = data.keys.toList()..sort();
-
-        return ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: data.length,
-          itemBuilder: (context, index) {
-            return Column(
-              children: <Widget>[
-                buildEventTile(
-                  keys[index] ?? 'error',
-                  DateTime.fromMillisecondsSinceEpoch(
-                      data[keys[index]]!.seconds * 1000),
-                ),
-              ],
-            );
-          },
-          separatorBuilder: (BuildContext context, int index) =>
-              const Divider(),
-        );
+        return const CircularProgressIndicator();
       },
     );
   }
